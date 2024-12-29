@@ -1,0 +1,26 @@
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-track {
+  animation: scroll 30s linear infinite; /* Slowed down animation */
+  display: flex;
+  align-items: center;
+}
+
+.logo-track:hover {
+  animation-play-state: paused;
+}
+
+/* Add this to ensure proper image sizing */
+.logo-track img {
+  max-width: 200px; /* Limit maximum width */
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
