@@ -16,3 +16,38 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Override Supabase Auth component styles */
+.sbui-btn {
+  background-color: #000 !important;
+  color: #fff !important;
+  border: 1px solid #000 !important;
+}
+
+.sbui-btn:hover {
+  background-color: #333 !important;
+}
+
+.sbui-input {
+  width: 100% !important;
+  max-width: 400px; /* Match your desired width */
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
+  padding: 10px;
+}
+
+.sbui-label {
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+.sbui-message-text {
+  color: #333 !important;
+}
+
+body {
+  background-color: #fff; /* White background */
+  font-family: Arial, sans-serif; /* Match your app font */
+}
