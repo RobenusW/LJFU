@@ -1,7 +1,8 @@
 import { useState } from "react";
 import NavBar from "../NavBar";
+
 export default function Initiated() {
-  const [role, setRole] = useState("talent");
+  const [role, setRole] = useState("");
 
   return (
     <div>
@@ -52,6 +53,14 @@ export default function Initiated() {
               </div>
             </div>
           </div>
+          {/* Next Button */}
+          {role !== "" && (
+            <div className="d-flex justify-content-center">
+              <button className="btn btn-dark mt-3">
+                Next <span className="ms-2">&#8594;</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

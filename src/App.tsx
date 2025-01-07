@@ -6,9 +6,9 @@ import Talent from "./Account/Talent";
 import AuthScreen from "./Account/AuthScreen";
 import { AuthProvider } from "./AuthContext";
 import Dashboard from "./Account/Dashboard";
-import ProtectedRouteToDashboard from "./Account/ProtectedRouteToDashboard";
-import ProtectedRouteToSignin from "./ProtectedRouteToSignin";
-import Intiated from "./Account/Intiated";
+import ProtectedRouteToDashboard from "./Account/ProtectedRoutes/ProtectedRouteToDashboard";
+import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin";
+import Intiated from "./Account/Intiate";
 
 export default function App() {
   return (

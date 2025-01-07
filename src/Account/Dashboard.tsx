@@ -1,20 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import NavBar from "../NavBar";
-import { supabase } from "./supabaseClient";
-import { Navigate } from "react-router-dom"; // Ensure this import is correct
+import { supabase } from "./supabase";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   console.log("Dashboard Rendered");
 
   // Rename to avoid shadowing
   const { user: authUser } = useAuth();
-
   // State to hold user metadata
-  const [metadata, setMetadata] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Define an async function inside useEffect
     const fetchUserMetadata = async () => {
       if (authUser) {
         try {
@@ -22,7 +20,12 @@ export default function Dashboard() {
           if (error) {
             console.error("Error fetching user:", error);
           } else if (data.user) {
-            setMetadata(data.user.user_metadata);
+            if (data.user.user_metadata === null) {
+              throw new Error("User metadata is null");
+            } else if (data.user.user_metadata.is_initiated === false) {
+              console.log("User is not initiated, navigating to /initiated");
+              navigate("/initiated", { replace: true });
+            }
           }
         } catch (err) {
           console.error("Unexpected error:", err);
@@ -31,12 +34,7 @@ export default function Dashboard() {
     };
 
     fetchUserMetadata();
-  }, [authUser]); // Re-run if authUser changes
-
-  // If metadata is loaded and user is not initiated, navigate to /initiated
-  if (metadata && !metadata.is_initiated) {
-    return <Navigate to="/initiated" replace />;
-  }
+  }, [authUser, navigate]); // Re-run if authUser changes
 
   // Render the dashboard if everything is fine
   return (
