@@ -1,65 +1,55 @@
 import React, { useState } from "react";
 import NavBar from "../../NavBar";
-import { createBusiness } from "./client";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
-
-const industries = [
-  "Agriculture",
-  "Manufacturing",
-  "Energy",
-  "Healthcare",
-  "Software",
-  "Information Technology (IT)",
-  "Financial Services",
-  "Retail",
-  "Education",
-  "Construction",
-  "Transportation",
-  "Hospitality and Tourism",
-  "Telecommunications",
-  "Real Estate",
-  "Media and Entertainment",
-  "Automotive",
-  "Mining and Natural Resources",
-  "Government and Public Sector",
-  "Aerospace and Defense",
-  "Food and Beverage",
-  "Environmental Services",
-];
-
-const maxDescriptionLength = 60;
+import { useAuth } from "../../hooks/useAuth";
+import { supabase } from "../../Account/supabase";
+const maxDescriptionLength = 65;
+const businessNameMaxLength = 20;
 
 export default function CreateProfile() {
   const [name, setName] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
   const [description, setDescription] = useState("");
-  const [industry, setIndustry] = useState("");
-  const navigate = useNavigate();
-  const { uid } = useParams();
+
+  const { user } = useAuth();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    handleCreateBusiness();
+    updateUser();
   };
 
-  const handleCreateBusiness = async () => {
+  const updateUser = async () => {
     if (!logo) {
       console.error("Logo is required");
+      return;
+    } else if (name === "") {
+      console.error("Name is required");
+      return;
+    } else if (description === "") {
+      console.error("Description is required");
       return;
     }
 
     try {
-      const business = await createBusiness({
-        name,
-        logo,
-        description,
-        industry,
-      });
-      navigate(`/business/${uid}/dashboard`);
+      if (user && user.user_metadata.chosen_role === undefined) {
+        supabase.auth.updateUser({
+          data: {
+            chosen_role: "business",
+          },
+        });
+      } else {
+        throw new Error("User not found");
+      }
     } catch (error) {
-      console.error("Error creating business", error);
+      console.error("Error updating user metadata:", error);
     }
+  };
+
+  const handleCreateBusiness = async () => {
+    const { data, error } = await supabase.from("businesses").insert({
+      business_name: name,
+      logo_location: logo,
+      description: description,
+    });
   };
 
   return (
@@ -86,7 +76,7 @@ export default function CreateProfile() {
             <h2 className="text-center mb-4">Create Profile</h2>
 
             {/* Name Field */}
-            <div className="mb-10">
+            <div className="mb-3">
               <label htmlFor="name" className="form-label mb-6">
                 Business Name
               </label>
@@ -98,7 +88,11 @@ export default function CreateProfile() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                maxLength={businessNameMaxLength}
               />
+              <div id="nameSub" className="form-text text-muted">
+                Max: {businessNameMaxLength} characters
+              </div>
             </div>
 
             {/* Logo Upload */}
@@ -138,29 +132,6 @@ export default function CreateProfile() {
               <div id="descriptionSub" className="form-text text-muted">
                 Max: {maxDescriptionLength} characters
               </div>
-            </div>
-
-            {/* Industry Dropdown */}
-            <div className="mb-3">
-              <label htmlFor="industry" className="form-label">
-                Industry
-              </label>
-              <select
-                className="form-control"
-                id="industry"
-                required
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select an industry
-                </option>
-                {industries.map((ind) => (
-                  <option key={ind} value={ind}>
-                    {ind}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Submit Button */}
@@ -211,23 +182,17 @@ export default function CreateProfile() {
               </div>
               <div>
                 <h3>{name}</h3>
-                <p style={{ fontSize: "12px" }}>{description}</p>
-                <span
+                <p
                   style={{
-                    display: "inline-block",
-                    background: "#eee",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
                     fontSize: "12px",
-                    color: "#333",
-                    maxWidth: "100%",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    maxWidth: "200px", // adjust as needed
+                    wordWrap: "break-word", // ensures long words break
+                    overflowWrap: "break-word", // modern name for the same rule
+                    whiteSpace: "normal", // ensure text can break across lines
                   }}
                 >
-                  {industry}
-                </span>
+                  {description}
+                </p>
               </div>
             </div>
           </div>

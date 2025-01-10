@@ -1,3 +1,3 @@
 export interface UserMetaData {
-  is_initiated: boolean;
+  chosen_role: string | null;
 }

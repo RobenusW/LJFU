@@ -4,14 +4,14 @@ export const editorTheme = createTheme({
   palette: {
     mode: "dark",
     background: {
-      default: "#121212",
-      paper: "#1E1E1E",
+      default: "#FFFFFF",
+      paper: "#000000",
     },
     primary: {
-      main: "#2196F3",
+      main: "#FFFFFF",
     },
     secondary: {
-      main: "#FF5722",
+      main: "#000000",
     },
 
     text: {

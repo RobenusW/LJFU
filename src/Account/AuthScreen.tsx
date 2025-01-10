@@ -1,40 +1,8 @@
-import { useEffect } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "./supabase"; // Your initialized Supabase client
 
 export default function AuthScreen() {
-  useEffect(() => {
-    // Listen for changes in auth state
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_, session) => {
-        if (session) {
-          // A session exists => user is logged in
-          try {
-            // If not already done, you can update the user's metadata
-            const { data, error } = await supabase.auth.updateUser({
-              data: {
-                user_metadata: { is_initiated: false },
-              },
-            });
-            if (error) {
-              console.error("Error updating user metadata:", error);
-            } else {
-              console.log("User metadata updated:", data);
-            }
-          } catch (err) {
-            console.error("Unexpected error updating metadata:", err);
-          }
-        }
-      }
-    );
-
-    // Cleanup listener on unmount
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
   return (
     <div
       style={{

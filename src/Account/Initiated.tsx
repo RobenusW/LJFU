@@ -1,8 +1,17 @@
 import { useState } from "react";
 import NavBar from "../NavBar";
+import { useNavigate } from "react-router-dom";
 
 export default function Initiated() {
   const [role, setRole] = useState("");
+  const navigate = useNavigate();
+  const nextPage = () => {
+    if (role === "talent") {
+      navigate(`/talent/editor`, { replace: true });
+    } else if (role === "business") {
+      navigate(`/business/createprofile`, { replace: true });
+    }
+  };
 
   return (
     <div>
@@ -53,10 +62,11 @@ export default function Initiated() {
               </div>
             </div>
           </div>
+
           {/* Next Button */}
           {role !== "" && (
             <div className="d-flex justify-content-center">
-              <button className="btn btn-dark mt-3">
+              <button className="btn btn-dark mt-3" onClick={nextPage}>
                 Next <span className="ms-2">&#8594;</span>
               </button>
             </div>

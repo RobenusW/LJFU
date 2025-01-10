@@ -9,18 +9,15 @@ export const createBusiness = async ({
   name,
   logo,
   description,
-  industry,
 }: {
   name: string;
   logo: File;
   description: string;
-  industry: string;
 }) => {
   const formData = new FormData();
   formData.append("name", name);
   formData.append("logo", logo);
   formData.append("description", description);
-  formData.append("industry", industry);
 
   const response = await axiosWithCredentials.post(BUSINESSES_API, formData);
 

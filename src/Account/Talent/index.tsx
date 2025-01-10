@@ -4,8 +4,8 @@ import Dashboard from "./Dashboard";
 export default function Talent() {
   return (
     <Routes>
-      <Route path=":uid/editor" element={<Editor />} />
-      <Route path=":uid/dashboard" element={<Dashboard />} />
+      <Route path="/editor" element={<Editor />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }

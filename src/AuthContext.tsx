@@ -14,11 +14,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         setUser(session?.user || null);
-        if (!session?.user?.user_metadata.is_initiated) {
-          navigate("/initiated"); // Navigate to dashboard
-        } else {
-          navigate("/dashboard"); // Navigate to dashboard
-        }
+        navigate("/dashboard"); // Navigate to dashboard
       } else if (event === "SIGNED_OUT") {
         setUser(null);
         navigate("/"); // Navigate to home

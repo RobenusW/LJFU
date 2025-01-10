@@ -1,11 +1,15 @@
+import { Skills } from "./skillsInterface";
 export interface GeneralInfo {
   firstName: string;
   lastName: string;
-  phone: string;
-  city: string;
-  state: string;
   email: string;
-  github?: string;
-  portfolio?: string;
-  additionalLink?: string;
+  university: string;
+  position: string;
+  location: {
+    city: string;
+    state: string;
+  };
+  yearsOfExperience: number | null;
+  technologies: Skills[];
+  languages: Skills[];
 }

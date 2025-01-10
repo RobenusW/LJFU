@@ -8,33 +8,27 @@ import { AuthProvider } from "./AuthContext";
 import Dashboard from "./Account/Dashboard";
 import ProtectedRouteToDashboard from "./Account/ProtectedRoutes/ProtectedRouteToDashboard";
 import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin";
-import Intiated from "./Account/Intiate";
-
+import Initiated from "./Account/Initiated";
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route element={<ProtectedRouteToDashboard />}>
-            <Route path="/signin" element={<AuthScreen />} />
             <Route path="/signup" element={<AuthScreen />} />
+            <Route path="/signin" element={<AuthScreen />} />
             <Route path="/home" element={<Navigate to="/talent" replace />} />
-          </Route>
-
-          <Route element={<ProtectedRouteToSignin />}>
+            <Route path="/" element={<Navigate to="/talent" replace />} />
+            <Route path="/talent" element={<Home />} />
+            <Route path="/business" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
 
           <Route element={<ProtectedRouteToSignin />}>
-            <Route path="/initiated" element={<Intiated />} />
+            <Route path="/initiate" element={<Initiated />} />
           </Route>
 
-          <Route path="/" element={<Navigate to="/talent" replace />} />
-
-          <Route path="/talent" element={<Home />} />
           <Route path="/talent/*" element={<Talent />} />
-          {/* Business Routes */}
-          <Route path="/business" element={<Home />} />
           <Route path="/business/*" element={<Business />} />
         </Routes>
       </AuthProvider>
