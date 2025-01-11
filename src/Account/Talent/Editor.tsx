@@ -440,14 +440,19 @@ export default function ResumeEditor() {
               onChange={handleAccordionChange("languages")}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                >
                   <Typography variant="h6">Programming Languages</Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      ml: 'auto', 
-                      color: languagesFields.length >= 15 ? 'error.main' : 'text.secondary',
-                      fontSize: '0.875rem'
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      ml: "auto",
+                      color:
+                        languagesFields.length >= 15
+                          ? "error.main"
+                          : "text.secondary",
+                      fontSize: "0.875rem",
                     }}
                   >
                     {languagesFields.length}/15
@@ -517,14 +522,19 @@ export default function ResumeEditor() {
               onChange={handleAccordionChange("technologies")}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                >
                   <Typography variant="h6">Technologies</Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      ml: 'auto', 
-                      color: technologiesFields.length >= 20 ? 'error.main' : 'text.secondary',
-                      fontSize: '0.875rem'
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      ml: "auto",
+                      color:
+                        technologiesFields.length >= 20
+                          ? "error.main"
+                          : "text.secondary",
+                      fontSize: "0.875rem",
                     }}
                   >
                     {technologiesFields.length}/20

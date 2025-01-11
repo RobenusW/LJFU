@@ -1,6 +1,6 @@
 export interface Business {
-  name: string;
-  logo?: File;
+  business_name: string;
   description: string;
-  industry: string;
+  logo: string;
+  user_id: string;
 }

@@ -1,56 +1,219 @@
-import React, { useState } from "react";
-import NavBar from "../../NavBar";
+/**
+ * CreateProfile Component
+ *
+ * A React component that handles business profile creation and updates.
+ * Allows businesses to set their name, description, and upload a logo.
+ * Integrates with Supabase for data storage and authentication.
+ */
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, IconButton, Typography } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CloseIcon from "@mui/icons-material/Close";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../Account/supabase";
-const maxDescriptionLength = 65;
-const businessNameMaxLength = 20;
+import { Business } from "./businessInterface";
+import { Database } from "../Interfaces-types/database.types";
+import NavBar from "../../NavBar";
+
+// Constants
+const MAX_DESCRIPTION_LENGTH = 65;
+const BUSINESS_NAME_MAX_LENGTH = 20;
+
+// Types
+type BusinessProfile = Database["public"]["Tables"]["businesses"]["Row"];
 
 export default function CreateProfile() {
+  // State management
   const [name, setName] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
   const [description, setDescription] = useState("");
+  const [profile, setProfile] = useState<BusinessProfile | null>(null);
 
+  // Hooks
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    updateUser();
+  /**
+   * Handles file upload to Supabase storage
+   * @param file - The file to upload
+   * @returns The public URL of the uploaded file
+   * @throws Error if upload fails
+   */
+  const uploadLogoToStorage = async (file: File): Promise<string> => {
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Please upload an image file (JPEG, PNG, WEBP, or GIF)");
+    }
+
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      throw new Error("File size must be less than 2MB");
+    }
+
+    try {
+      // Create a clean filename with proper extension
+      const fileExt = file.name.split(".").pop();
+      const cleanFileName = `${user?.id}-${Date.now()}.${fileExt}`;
+      const filePath = `/${user?.id}/${cleanFileName}`;
+
+      // Upload file to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from("logos")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (uploadError) {
+        console.error("Upload error details:", uploadError);
+        throw new Error(`Failed to upload logo: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data } = supabase.storage.from("logos").getPublicUrl(filePath);
+
+      if (!data?.publicUrl) {
+        throw new Error("Failed to get public URL for uploaded file");
+      }
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error instanceof Error
+        ? error
+        : new Error("An unexpected error occurred during file upload");
+    }
   };
 
-  const updateUser = async () => {
+  /**
+   * Handles the form submission for creating/updating business profile
+   * @param event - Form submission event
+   */
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     if (!logo) {
-      console.error("Logo is required");
-      return;
-    } else if (name === "") {
-      console.error("Name is required");
-      return;
-    } else if (description === "") {
-      console.error("Description is required");
+      alert("Please upload a logo.");
       return;
     }
 
     try {
-      if (user && user.user_metadata.chosen_role === undefined) {
-        supabase.auth.updateUser({
-          data: {
-            chosen_role: "business",
-          },
-        });
-      } else {
-        throw new Error("User not found");
-      }
+      const logoUrl = await uploadLogoToStorage(logo);
+      const businessData: Business = {
+        business_name: name,
+        description: description,
+        logo: logoUrl,
+        user_id: user?.id || "",
+      };
+
+      await onSubmit(businessData);
     } catch (error) {
-      console.error("Error updating user metadata:", error);
+      console.error("Error in form submission:", error);
     }
   };
 
-  const handleCreateBusiness = async () => {
-    const { data, error } = await supabase.from("businesses").insert({
-      business_name: name,
-      logo_location: logo,
-      description: description,
-    });
+  /**
+   * Handles the business profile data submission to Supabase
+   * @param data - Business profile data to be submitted
+   */
+  const onSubmit = async (data: Business) => {
+    try {
+      if (!user) throw new Error("User is not logged in");
+
+      const payload = { ...data, user_id: user.id };
+      const response = profile
+        ? await supabase
+            .from("businesses")
+            .update(payload)
+            .eq("user_id", profile.user_id)
+        : await supabase.from("businesses").insert(payload);
+
+      if (response.error) throw new Error(response.error.message);
+
+      await updateUserRole();
+      navigate("/business/dashboard");
+    } catch (error) {
+      handleError("Error creating business:", error);
+    }
   };
+
+  /**
+   * Updates the user's role in Supabase auth
+   */
+  const updateUserRole = async () => {
+    const { error } = await supabase.auth.updateUser({
+      data: { chosen_role: "business" },
+    });
+
+    if (error) throw new Error(error.message);
+  };
+
+  /**
+   * Handles error logging and user notification
+   */
+  const handleError = (message: string, error: unknown) => {
+    console.error(message, error);
+    alert(`An error occurred: ${(error as Error).message || "Unknown error"}`);
+  };
+
+  /**
+   * Handles logo file selection
+   */
+  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please upload an image file (JPEG, PNG, WEBP, or GIF)");
+      event.target.value = ""; // Reset input
+      return;
+    }
+
+    // Validate file size
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      alert("File size must be less than 5MB");
+      event.target.value = ""; // Reset input
+      return;
+    }
+
+    setLogo(file);
+  };
+
+  /**
+   * Fetches existing business profile on component mount
+   */
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        throw new Error("User is not logged in");
+      }
+
+      if (user.user_metadata.chosen_role === undefined) {
+        return;
+      }
+
+      if (user.user_metadata.chosen_role === "business") {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) throw new Error("Error fetching profile");
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   return (
     <div style={{ background: "#fff", padding: "20px" }}>
@@ -86,12 +249,12 @@ export default function CreateProfile() {
                 id="name"
                 placeholder="Enter your name"
                 required
-                value={name}
+                value={profile?.business_name || name}
                 onChange={(e) => setName(e.target.value)}
-                maxLength={businessNameMaxLength}
+                maxLength={BUSINESS_NAME_MAX_LENGTH}
               />
               <div id="nameSub" className="form-text text-muted">
-                Max: {businessNameMaxLength} characters
+                Max: {BUSINESS_NAME_MAX_LENGTH} characters
               </div>
             </div>
 
@@ -100,19 +263,88 @@ export default function CreateProfile() {
               <label htmlFor="logo" className="form-label">
                 Upload Logo
               </label>
-              <input
-                type="file"
-                className="form-control"
-                id="logo"
-                accept="image/*"
-                required
-                onChange={(e) =>
-                  setLogo(e.target.files ? e.target.files[0] : null)
-                }
-              />
-              <div id="logoHelp" className="form-text text-muted">
-                Optimal size: 100x100px
-              </div>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: 160,
+                  border: "1px dashed",
+                  borderColor: "divider",
+                  borderRadius: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  backgroundColor: "background.paper",
+                }}
+              >
+                {logo ? (
+                  <>
+                    <Box
+                      component="img"
+                      src={URL.createObjectURL(logo)}
+                      alt="Company Logo"
+                      sx={{
+                        maxWidth: "80%",
+                        maxHeight: "80%",
+                        width: "auto",
+                        height: "auto",
+                        objectFit: "contain",
+                        padding: 2,
+                      }}
+                    />
+                    <IconButton
+                      onClick={() => setLogo(null)}
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        bgcolor: "background.paper",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                        },
+                        boxShadow: 1,
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </>
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 1,
+                      color: "text.secondary",
+                      p: 2,
+                      textAlign: "center",
+                    }}
+                  >
+                    <CloudUploadIcon sx={{ fontSize: 32 }} />
+                    <Typography variant="body2">
+                      Drag and drop or click to upload logo
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Recommended: Square image, 160x160px
+                    </Typography>
+                  </Box>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                  }}
+                />
+              </Box>
             </div>
 
             {/* Description Field */}
@@ -125,12 +357,12 @@ export default function CreateProfile() {
                 id="description"
                 placeholder="Enter a description"
                 required
-                value={description}
+                value={profile?.description || description}
                 onChange={(e) => setDescription(e.target.value)}
-                maxLength={maxDescriptionLength}
+                maxLength={MAX_DESCRIPTION_LENGTH}
               />
               <div id="descriptionSub" className="form-text text-muted">
-                Max: {maxDescriptionLength} characters
+                Max: {MAX_DESCRIPTION_LENGTH} characters
               </div>
             </div>
 
