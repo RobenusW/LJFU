@@ -5,10 +5,12 @@ import Business from "./Account/Business";
 import Talent from "./Account/Talent";
 import AuthScreen from "./Account/AuthScreen";
 import { AuthProvider } from "./AuthContext";
-import Dashboard from "./Account/Dashboard";
 import ProtectedRouteToDashboard from "./Account/ProtectedRoutes/ProtectedRouteToDashboard";
 import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin";
 import Initiated from "./Account/Initiated";
+import Companies from "./Home/DashboardBusinesses";
+import ResumesScreen from "./Account/Talent/Dashboard";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -21,7 +23,6 @@ export default function App() {
             <Route path="/" element={<Navigate to="/talent" replace />} />
             <Route path="/talent" element={<Home />} />
             <Route path="/business" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
 
           <Route element={<ProtectedRouteToSignin />}>
@@ -30,6 +31,8 @@ export default function App() {
 
           <Route path="/talent/*" element={<Talent />} />
           <Route path="/business/*" element={<Business />} />
+          <Route path="/companies/*" element={<Companies />} />
+          <Route path="/resumes" element={<ResumesScreen />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

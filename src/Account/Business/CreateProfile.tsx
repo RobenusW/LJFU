@@ -58,30 +58,25 @@ export default function CreateProfile() {
       // Create a clean filename with proper extension
       const fileExt = file.name.split(".").pop();
       const cleanFileName = `${user?.id}-${Date.now()}.${fileExt}`;
-      const filePath = `/${user?.id}/${cleanFileName}`;
+      const filePath = `${user?.id}/${cleanFileName}`; // no leading slash
 
-      // Upload file to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from("logos")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
-        });
+        .upload(filePath, file);
 
+      // Check for errors
       if (uploadError) {
-        console.error("Upload error details:", uploadError);
-        throw new Error(`Failed to upload logo: ${uploadError.message}`);
+        throw new Error(`Failed to upload: ${uploadError.message}`);
       }
 
-      // Get public URL
+      // Get URL
       const { data } = supabase.storage.from("logos").getPublicUrl(filePath);
-
       if (!data?.publicUrl) {
-        throw new Error("Failed to get public URL for uploaded file");
+        throw new Error("Failed to get public URL");
       }
+      const logoUrl = data.publicUrl;
 
-      return data.publicUrl;
+      return logoUrl;
     } catch (error) {
       console.error("Upload error:", error);
       throw error instanceof Error

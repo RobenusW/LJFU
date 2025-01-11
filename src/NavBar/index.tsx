@@ -89,13 +89,13 @@ export default function NavBar() {
           </button>
 
           <button
-            onClick={() => navigate("/resumeuploads")}
+            onClick={() => navigate("/resumes")}
             style={{
               background: "none",
               border: "none",
               padding: "8px 12px",
-              color: pathname.includes("resumeuploads") ? "#000" : "#666",
-              fontWeight: pathname.includes("resumeuploads") ? "600" : "400",
+              color: pathname.includes("resumes") ? "#000" : "#666",
+              fontWeight: pathname.includes("resumes") ? "600" : "400",
             }}
           >
             Resumes
