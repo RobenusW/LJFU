@@ -17,6 +17,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  Paper,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -32,6 +33,10 @@ import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../supabase";
 import { ResumeFormValues } from "./FormValues";
 import { metroAreas } from "./Collections/MetroAreas";
+import { useUniversitySearch } from "../../hooks/useUniversitySearch";
+import { countries } from "./Collections/Countries";
+import { programmingLanguages } from "./Collections/ProgrammingLanguages";
+import { technologies } from "./Collections/Technologies";
 export default function ResumeEditor() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -50,7 +55,7 @@ export default function ResumeEditor() {
     last_name: "",
     email: "",
     university: "",
-    position: "",
+    position: [],
     metro_area: "",
     years_of_experience: 0,
     technologies: [],
@@ -60,6 +65,13 @@ export default function ResumeEditor() {
     relocate: false,
   });
 
+  const [universityQuery, setUniversityQuery] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const { universities, error } = useUniversitySearch(
+    universityQuery,
+    selectedCountry
+  );
+
   const { control, register, handleSubmit, reset, getValues, trigger } =
     useForm<ResumeFormValues>({
       defaultValues: {
@@ -67,7 +79,7 @@ export default function ResumeEditor() {
         last_name: "",
         email: "",
         university: "",
-        position: "",
+        position: [],
         metro_area: "",
         years_of_experience: 0,
         technologies: [],
@@ -257,27 +269,33 @@ export default function ResumeEditor() {
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
-                      label="University"
-                      fullWidth
-                      {...register("university", {
-                        required: true,
-                      })}
-                      required
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
                       select
                       label="Position"
                       fullWidth
-                      {...register("position", { required: true })}
                       required
+                      {...register("position", {
+                        required: true,
+                      })}
                       value={generalInfo.position}
                       onChange={(e) => {
+                        const value = e.target.value;
                         setGeneralInfo({
                           ...generalInfo,
-                          position: e.target.value,
+                          position:
+                            typeof value === "string"
+                              ? [value]
+                              : (value as string[]),
                         });
+                      }}
+                      SelectProps={{
+                        multiple: true,
+                        MenuProps: {
+                          PaperProps: {
+                            style: {
+                              maxHeight: 224,
+                            },
+                          },
+                        },
                       }}
                     >
                       {positions.map((position) => (
@@ -291,7 +309,82 @@ export default function ResumeEditor() {
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       select
-                      label="Metro Area"
+                      fullWidth
+                      label="Country of Study"
+                      value={selectedCountry}
+                      onChange={(e) => {
+                        setSelectedCountry(e.target.value);
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>All Countries</em>
+                      </MenuItem>
+                      {countries.map((country) => (
+                        <MenuItem key={country} value={country}>
+                          {country}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      required
+                      label="University"
+                      {...register("university", {
+                        required: true,
+                      })}
+                      value={generalInfo.university}
+                      onChange={(e) => {
+                        setGeneralInfo({
+                          ...generalInfo,
+                          university: e.target.value,
+                        });
+                        setUniversityQuery(e.target.value);
+                      }}
+                      error={!!error}
+                      helperText={error || ""}
+                    />
+                    {universities.length > 0 && (
+                      <Paper
+                        sx={{
+                          mt: 1,
+                          maxHeight: 200,
+                          overflowY: "auto",
+                          position: "absolute",
+                          zIndex: 1000,
+                          width: "calc(100% - 32px)",
+                        }}
+                      >
+                        {universities.map((uni, index) => (
+                          <MenuItem
+                            key={index}
+                            onClick={() => {
+                              setGeneralInfo({
+                                ...generalInfo,
+                                university: uni.name,
+                              });
+                              setUniversityQuery("");
+                            }}
+                          >
+                            {uni.name}
+                            <Typography
+                              variant="caption"
+                              color="textSecondary"
+                              sx={{ ml: 1 }}
+                            >
+                              {uni.country}
+                            </Typography>
+                          </MenuItem>
+                        ))}
+                      </Paper>
+                    )}
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      select
+                      label="Current Metro Area"
                       fullWidth
                       {...register("metro_area", {
                         required: true,
@@ -327,7 +420,7 @@ export default function ResumeEditor() {
                   </FormGroup>
                   <Grid size={{ xs: 12 }}>
                     <TextField
-                      label="Years of Experience"
+                      label="Years of Relevant Experience"
                       type="number"
                       fullWidth
                       {...register("years_of_experience", {
@@ -341,70 +434,25 @@ export default function ResumeEditor() {
               </AccordionDetails>
             </Accordion>
 
-            {/* Technologies */}
-            <Accordion
-              expanded={expanded === "technologies"}
-              onChange={handleAccordionChange("technologies")}
-            >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">Technologies</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {technologiesFields.map((field, index) => (
-                  <Box key={field.id} mt={2}>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          label="Technology"
-                          fullWidth
-                          {...register(`technologies.${index}.skill` as const)}
-                          required
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          select
-                          label="Skill Level"
-                          fullWidth
-                          defaultValue="familiar"
-                          {...register(`technologies.${index}.level` as const)}
-                          required
-                        >
-                          <MenuItem value="familiar">Familiar</MenuItem>
-                          <MenuItem value="well-versed">Well-Versed</MenuItem>
-                          <MenuItem value="expert">Expert</MenuItem>
-                        </TextField>
-                      </Grid>
-                    </Grid>
-                    <IconButton
-                      onClick={() => removeTechnology(index)}
-                      color="error"
-                    >
-                      <RemoveCircleOutlineIcon />
-                    </IconButton>
-                  </Box>
-                ))}
-                <Button
-                  startIcon={<AddCircleOutlineIcon />}
-                  onClick={() =>
-                    appendTechnology({
-                      skill: "",
-                      level: "familiar",
-                    })
-                  }
-                >
-                  Add Technology
-                </Button>
-              </AccordionDetails>
-            </Accordion>
-
             {/* Languages */}
             <Accordion
               expanded={expanded === "languages"}
               onChange={handleAccordionChange("languages")}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">Languages</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Typography variant="h6">Programming Languages</Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      ml: 'auto', 
+                      color: languagesFields.length >= 15 ? 'error.main' : 'text.secondary',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {languagesFields.length}/15
+                  </Typography>
+                </Box>
               </AccordionSummary>
               <AccordionDetails>
                 {languagesFields.map((field, index) => (
@@ -412,11 +460,18 @@ export default function ResumeEditor() {
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12 }}>
                         <TextField
-                          label="Language"
+                          select
+                          label="Programming Language"
                           fullWidth
                           {...register(`languages.${index}.skill` as const)}
                           required
-                        />
+                        >
+                          {programmingLanguages.map((lang) => (
+                            <MenuItem key={lang} value={lang}>
+                              {lang}
+                            </MenuItem>
+                          ))}
+                        </TextField>
                       </Grid>
                       <Grid size={{ xs: 12 }}>
                         <TextField
@@ -449,8 +504,86 @@ export default function ResumeEditor() {
                       level: "familiar",
                     })
                   }
+                  disabled={languagesFields.length >= 15}
                 >
-                  Add Language
+                  Add Programming Language
+                </Button>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* Technologies */}
+            <Accordion
+              expanded={expanded === "technologies"}
+              onChange={handleAccordionChange("technologies")}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Typography variant="h6">Technologies</Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      ml: 'auto', 
+                      color: technologiesFields.length >= 20 ? 'error.main' : 'text.secondary',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    {technologiesFields.length}/20
+                  </Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {technologiesFields.map((field, index) => (
+                  <Box key={field.id} mt={2}>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12 }}>
+                        <TextField
+                          select
+                          label="Technology"
+                          fullWidth
+                          {...register(`technologies.${index}.skill` as const)}
+                          required
+                        >
+                          {technologies.map((tech) => (
+                            <MenuItem key={tech} value={tech}>
+                              {tech}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Grid>
+                      <Grid size={{ xs: 12 }}>
+                        <TextField
+                          select
+                          label="Skill Level"
+                          fullWidth
+                          defaultValue="familiar"
+                          {...register(`technologies.${index}.level` as const)}
+                          required
+                        >
+                          <MenuItem value="familiar">Familiar</MenuItem>
+                          <MenuItem value="well-versed">Well-Versed</MenuItem>
+                          <MenuItem value="expert">Expert</MenuItem>
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <IconButton
+                      onClick={() => removeTechnology(index)}
+                      color="error"
+                    >
+                      <RemoveCircleOutlineIcon />
+                    </IconButton>
+                  </Box>
+                ))}
+                <Button
+                  startIcon={<AddCircleOutlineIcon />}
+                  onClick={() =>
+                    appendTechnology({
+                      skill: "",
+                      level: "familiar",
+                    })
+                  }
+                  disabled={technologiesFields.length >= 20}
+                >
+                  Add Technology
                 </Button>
               </AccordionDetails>
             </Accordion>

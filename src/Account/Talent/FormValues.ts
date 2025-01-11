@@ -8,7 +8,7 @@ export type ResumeFormValues = {
   last_name: string;
   email: string;
   university: string;
-  position: string;
+  position: string[];
   metro_area: string;
   relocate: boolean;
   years_of_experience: number;

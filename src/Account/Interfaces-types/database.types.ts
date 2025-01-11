@@ -41,7 +41,7 @@ export type Database = {
           languages: Database["public"]["CompositeTypes"]["skill_obj"][]
           last_name: string
           metro_area: string
-          position: string
+          position: string[]
           relocate: boolean
           resume_pdf: string
           technologies: Database["public"]["CompositeTypes"]["skill_obj"][]
@@ -56,7 +56,7 @@ export type Database = {
           languages?: Database["public"]["CompositeTypes"]["skill_obj"][]
           last_name: string
           metro_area?: string
-          position: string
+          position: string[]
           relocate?: boolean
           resume_pdf: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]
@@ -71,7 +71,7 @@ export type Database = {
           languages?: Database["public"]["CompositeTypes"]["skill_obj"][]
           last_name?: string
           metro_area?: string
-          position?: string
+          position?: string[]
           relocate?: boolean
           resume_pdf?: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]

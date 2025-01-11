@@ -1,5 +1,6 @@
 // Array of Top 100 U.S. Metropolitan Area Names (Shortened)
 export const metroAreas: string[] = [
+  "Remote",
   "New York, NY",
   "Los Angeles, CA",
   "Chicago, IL",
