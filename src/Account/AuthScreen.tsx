@@ -1,8 +1,38 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "./supabase"; // Your initialized Supabase client
+import { supabase } from "./supabase";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function AuthScreen() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [view, setView] = useState<"sign_in" | "sign_up">("sign_in");
+
+  useEffect(() => {
+    // Set initial view based on URL
+    setView(location.pathname === "/signup" ? "sign_up" : "sign_in");
+  }, [location.pathname]);
+
+  useEffect(() => {
+    // Handle email confirmation
+    const handleAuthChange = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        // Check if this is right after email confirmation
+        const confirmationHash = window.location.hash;
+        if (confirmationHash.includes("confirmation")) {
+          navigate("/signin", { replace: true });
+        }
+      }
+    });
+
+    return () => {
+      handleAuthChange.data.subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  console.log("View:", view);
+
   return (
     <div
       style={{
@@ -24,10 +54,13 @@ export default function AuthScreen() {
           }}
           className="card p-4 shadow"
         >
-          <h2 className="text-center mb-4">Sign In</h2>
+          <h2 className="text-center mb-4">
+            {view === "sign_up" ? "Sign Up" : "Sign In"}
+          </h2>
 
           <Auth
             supabaseClient={supabase}
+            view={view}
             appearance={{
               theme: ThemeSupa,
               style: {

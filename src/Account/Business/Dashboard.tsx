@@ -1,239 +1,379 @@
 import {
   Box,
   Container,
-  Grid,
-  Paper,
   Typography,
   Card,
   CardContent,
-  IconButton,
-  Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Divider,
-  Button,
-  useTheme,
+  TextField,
+  Chip,
+  InputAdornment,
+  Autocomplete,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import {
-  BarChart,
-  People,
-  BusinessCenter,
-  Visibility,
-  Message,
-  Edit,
-  Add,
-} from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { Grid2 as Grid } from "@mui/material";
+import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
-import { Business } from "./businessInterface";
 import NavBar from "../../NavBar";
+import SearchIcon from "@mui/icons-material/Search";
+import { ResumeFormValues } from "./FormValues";
 
-// Mock data for demonstration
-const recentApplications = [
-  { id: 1, name: "John Doe", role: "Software Engineer", date: "2 hours ago" },
-  { id: 2, name: "Jane Smith", role: "Product Manager", date: "5 hours ago" },
-  { id: 3, name: "Mike Johnson", role: "UX Designer", date: "1 day ago" },
-];
+export default function Dashboard() {
+  const [resumes, setResumes] = useState<ResumeFormValues[]>([]);
+  const [filteredResumes, setFilteredResumes] = useState<ResumeFormValues[]>(
+    []
+  );
+  const [searchQuery, setSearchQuery] = useState("");
 
-const metrics = [
-  { title: "Profile Views", value: "2.3k", icon: Visibility, color: "#2196f3" },
-  { title: "Applications", value: "48", icon: People, color: "#4caf50" },
-  { title: "Active Jobs", value: "12", icon: BusinessCenter, color: "#ff9800" },
-  { title: "Messages", value: "28", icon: Message, color: "#e91e63" },
-];
+  // Filter states
+  const [filters, setFilters] = useState({
+    university: "",
+    position: "",
+    metro_area: "",
+    relocate: null as boolean | null,
+    minYearsOfExperience: 0,
+    technologies: [] as string[],
+    languages: [] as string[],
+  });
 
-export default function BusinessDashboard() {
-  const theme = useTheme();
-  const [businessProfile, setBusinessProfile] = useState<Business | null>(null);
+  // Available options for filters
+  const [availableOptions, setAvailableOptions] = useState({
+    universities: new Set<string>(),
+    positions: new Set<string>(),
+    locations: new Set<string>(),
+    technologies: new Set<string>(),
+    languages: new Set<string>(),
+  });
 
   useEffect(() => {
-    const fetchBusinessProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("businesses")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching business profile:", error);
-        return;
-      }
-
-      setBusinessProfile(data);
-    };
-
-    fetchBusinessProfile();
+    fetchResumes();
   }, []);
 
+  const fetchResumes = async () => {
+    try {
+      const { data, error } = await supabase.from("resumes").select("*");
+      if (error) throw error;
+      setResumes(data || []);
+
+      // Update available options
+      const options = {
+        universities: new Set<string>(),
+        positions: new Set<string>(),
+        locations: new Set<string>(),
+        technologies: new Set<string>(),
+        languages: new Set<string>(),
+      };
+
+      data?.forEach((resume) => {
+        if (resume.university) options.universities.add(resume.university);
+        resume.position.forEach((pos) => options.positions.add(pos));
+        if (resume.metro_area) options.locations.add(resume.metro_area);
+        resume.technologies.forEach((tech) => {
+          if (tech.skill) options.technologies.add(tech.skill);
+        });
+        resume.languages.forEach((lang) => {
+          if (lang.skill) options.languages.add(lang.skill);
+        });
+      });
+
+      setAvailableOptions(options);
+    } catch (error) {
+      console.error("Error fetching resumes:", error);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...resumes];
+
+    // Apply name search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (resume) =>
+          resume.first_name.toLowerCase().includes(query) ||
+          resume.last_name.toLowerCase().includes(query)
+      );
+    }
+
+    filtered = filtered.filter(
+      (resume) => resume.university === filters.university
+    );
+
+    filtered = filtered.filter((resume) =>
+      resume.position.includes(filters.position)
+    );
+
+    if (filters.metro_area && !filters.relocate) {
+      filtered = filtered.filter(
+        (resume) => resume.metro_area === filters.metro_area
+      );
+    }
+
+    if (filters.relocate !== null) {
+      filtered = filtered.filter(
+        (resume) => resume.relocate === filters.relocate
+      );
+    }
+
+    if (filters.minYearsOfExperience !== null) {
+      filtered = filtered.filter(
+        (resume) => resume.years_of_experience >= filters.minYearsOfExperience
+      );
+    }
+
+    if (filters.technologies.length > 0) {
+      filtered = filtered.filter((resume) =>
+        filters.technologies.every((tech) =>
+          resume.technologies.some((t) => t.skill === tech)
+        )
+      );
+    }
+
+    if (filters.languages.length > 0) {
+      filtered = filtered.filter((resume) =>
+        filters.languages.every((lang) =>
+          resume.languages.some((l) => l.skill === lang)
+        )
+      );
+    }
+
+    setFilteredResumes(filtered);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [filters, searchQuery, resumes, applyFilters]);
   return (
-    <>
-      <NavBar />
-      <Box
-        sx={{
-          minHeight: "100vh",
-          backgroundColor: theme.palette.grey[100],
-          pt: "80px",
-        }}
-      >
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          {/* Welcome Section */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" gutterBottom fontWeight="bold">
-              Welcome back, {businessProfile?.business_name}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Here's what's happening with your business today
-            </Typography>
-          </Box>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+      <div style={{ marginTop: "80px" }}>
+        <NavBar />
+      </div>
+      <Container maxWidth="xl" sx={{ pt: 10, pb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Talent Dashboard
+        </Typography>
 
-          {/* Metrics Grid */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {metrics.map((metric, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    transition: "transform 0.2s",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                    },
+        <Paper sx={{ p: 3, mb: 4 }}>
+          {/* Search Bar */}
+          <TextField
+            fullWidth
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ mb: 3 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {/* Filters */}
+          <Grid container spacing={2}>
+            {/* University Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Autocomplete
+                options={Array.from(availableOptions.universities)}
+                value={filters.university}
+                onChange={(_, newValue) =>
+                  setFilters({ ...filters, university: newValue || "" })
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="University" fullWidth />
+                )}
+              />
+            </Grid>
+
+            {/* Position Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Autocomplete
+                options={Array.from(availableOptions.positions)}
+                value={filters.position}
+                onChange={(_, newValue) =>
+                  setFilters({ ...filters, position: newValue || "" })
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Position" fullWidth />
+                )}
+              />
+            </Grid>
+
+            {/* Location/Relocation Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <FormControl fullWidth>
+                <InputLabel>Location Preference</InputLabel>
+                <Select
+                  value={filters.relocate === null ? "" : filters.relocate}
+                  label="Location Preference"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "relocate") {
+                      setFilters({
+                        ...filters,
+                        relocate: true,
+                        metro_area: "",
+                      });
+                    } else {
+                      setFilters({
+                        ...filters,
+                        relocate: false,
+                        metro_area: "",
+                      });
+                    }
                   }}
                 >
-                  <CardContent>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                      <Avatar sx={{ bgcolor: metric.color, mr: 2 }}>
-                        <metric.icon />
-                      </Avatar>
-                      <Typography variant="h6" component="div">
-                        {metric.title}
-                      </Typography>
-                    </Box>
-                    <Typography variant="h4" component="div" fontWeight="bold">
-                      {metric.value}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                  <MenuItem value="relocate">Open to Relocation</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-          {/* Main Content Grid */}
-          <Grid container spacing={3}>
-            {/* Profile Overview */}
-            <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 3, height: "100%" }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    Profile Overview
-                  </Typography>
-                  <IconButton size="small" color="primary">
-                    <Edit />
-                  </IconButton>
-                </Box>
-                <Box sx={{ textAlign: "center", mb: 3 }}>
-                  {businessProfile?.logo ? (
-                    <Avatar
-                      src={businessProfile.logo}
-                      sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
-                    />
-                  ) : (
-                    <Avatar sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}>
-                      {businessProfile?.business_name?.[0]}
-                    </Avatar>
+            {/* Metro Area (only shown when Location Specific is selected) */}
+            {filters.relocate === false && (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                <Autocomplete
+                  options={Array.from(availableOptions.locations)}
+                  value={filters.metro_area}
+                  onChange={(_, newValue) =>
+                    setFilters({ ...filters, metro_area: newValue || "" })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} label="Metro Area" fullWidth />
                   )}
-                  <Typography variant="h6">
-                    {businessProfile?.business_name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2 }}
-                  >
-                    {businessProfile?.description}
-                  </Typography>
-                </Box>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  startIcon={<Add />}
-                  sx={{ mb: 2 }}
-                >
-                  Post New Job
-                </Button>
-              </Paper>
-            </Grid>
+                />
+              </Grid>
+            )}
 
-            {/* Recent Applications */}
-            <Grid item xs={12} md={8}>
-              <Paper sx={{ p: 3, height: "100%" }}>
-                <Typography variant="h6" gutterBottom>
-                  Recent Applications
-                </Typography>
-                <List>
-                  {recentApplications.map((application, index) => (
-                    <Box key={application.id}>
-                      <ListItem
-                        secondaryAction={
-                          <Typography variant="caption" color="text.secondary">
-                            {application.date}
-                          </Typography>
-                        }
-                      >
-                        <ListItemAvatar>
-                          <Avatar>{application.name[0]}</Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={application.name}
-                          secondary={application.role}
-                        />
-                      </ListItem>
-                      {index < recentApplications.length - 1 && <Divider />}
-                    </Box>
+            {/* Years of Experience Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <FormControl fullWidth>
+                <InputLabel>Years of Experience</InputLabel>
+                <Select
+                  value={filters.minYearsOfExperience || ""}
+                  label="Years of Experience"
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      minYearsOfExperience: e.target.value as number,
+                    })
+                  }
+                >
+                  <MenuItem value={0}>Any</MenuItem>
+                  {[1, 2, 3, 5, 7, 10].map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year}+ years
+                    </MenuItem>
                   ))}
-                </List>
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                  <Button color="primary">View All Applications</Button>
-                </Box>
-              </Paper>
+                </Select>
+              </FormControl>
             </Grid>
 
-            {/* Activity Chart */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                  <BarChart sx={{ mr: 1, color: theme.palette.primary.main }} />
-                  <Typography variant="h6">Profile Activity</Typography>
-                </Box>
-                <Box
-                  sx={{
-                    height: 300,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography color="text.secondary">
-                    Activity chart will be implemented here
-                  </Typography>
-                </Box>
-              </Paper>
+            {/* Technologies Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Autocomplete
+                multiple
+                options={Array.from(availableOptions.technologies)}
+                value={filters.technologies}
+                onChange={(_, newValue) => {
+                  setFilters({
+                    ...filters,
+                    technologies: newValue,
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Technologies"
+                    placeholder="Select technologies"
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Languages Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Autocomplete
+                multiple
+                options={Array.from(availableOptions.languages)}
+                value={filters.languages}
+                onChange={(_, newValue) => {
+                  setFilters({
+                    ...filters,
+                    languages: newValue,
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Programming Languages"
+                    placeholder="Select languages"
+                  />
+                )}
+              />
             </Grid>
           </Grid>
-        </Container>
-      </Box>
-    </>
+        </Paper>
+
+        {/* Results Display */}
+        <Grid container spacing={3}>
+          {filteredResumes.map((resume) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={resume.email}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {resume.first_name} {resume.last_name}
+                  </Typography>
+                  <Typography color="textSecondary" gutterBottom>
+                    {resume.position.join(", ")}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    {resume.university}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    {resume.metro_area}
+                    {resume.relocate && " (Open to Relocation)"}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    Experience: {resume.years_of_experience} years
+                  </Typography>
+
+                  <Typography variant="subtitle2" gutterBottom>
+                    Technologies:
+                  </Typography>
+                  <Box sx={{ mb: 1 }}>
+                    {resume.technologies.map((tech, index) => (
+                      <Chip
+                        key={index}
+                        label={`${tech.skill} (${tech.level})`}
+                        size="small"
+                        sx={{ mr: 0.5, mb: 0.5 }}
+                      />
+                    ))}
+                  </Box>
+
+                  <Typography variant="subtitle2" gutterBottom>
+                    Languages:
+                  </Typography>
+                  <Box>
+                    {resume.languages.map((lang, index) => (
+                      <Chip
+                        key={index}
+                        label={`${lang.skill} (${lang.level})`}
+                        size="small"
+                        sx={{ mr: 0.5, mb: 0.5 }}
+                      />
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
 }

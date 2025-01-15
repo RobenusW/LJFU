@@ -3,15 +3,22 @@ import "./index.css";
 import FAQ from "./FAQ";
 import Footer from "./Footer";
 import LogoCarousel from "./LogoCarousel";
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [businessPath, setBusinessPath] = useState(
+    pathname.includes("business")
+  );
+
+  useEffect(() => {
+    setBusinessPath(pathname.includes("business"));
+  }, [pathname]);
 
   let userType = "business";
-  if (pathname.includes("talent")) {
+  if (!businessPath) {
     userType = "talent";
   }
 
@@ -58,7 +65,7 @@ export default function Home() {
         >
           {userType === "business"
             ? "Get unparalleled access to thousands of top-tier candidates instantly."
-            : "One Resume, No Cover Letters. We promise."}
+            : "One Resume. No Cover Letters. We promise."}
         </p>
 
         <div className="cta-buttons" style={{ textAlign: "center" }}>
@@ -117,9 +124,15 @@ export default function Home() {
             >
               👤
             </div>
-            <h3 style={{ marginBottom: "15px" }}>Create Business Profile</h3>
+            <h3 style={{ marginBottom: "15px" }}>
+              {userType === "business"
+                ? "Create Business Profile"
+                : "Upload Resume"}
+            </h3>
             <p style={{ color: "#666" }}>
-              Fill out your company details and job requirements.
+              {userType === "business"
+                ? "Create a profile for your business and upload your logo."
+                : "Upload your resume and few short details about your skills."}
             </p>
           </div>
 
@@ -134,10 +147,9 @@ export default function Home() {
             </div>
             <h3 style={{ marginBottom: "15px" }}>Get Matched</h3>
             <p style={{ color: "#666" }}>
-              Filter our thousands of candidates for skills, university,
-              experience, past employment and more. We'll analyze your job
-              requirements to recommend candidates who match your company's
-              needs
+              {userType === "business"
+                ? "Filter our thousands of candidates for skills, university, experience, and more"
+                : "Businesses will view your resumes and email  you if they think you are a good fit. We're truly always doing our best to make sure your resume gets the attention it deserves."}
             </p>
           </div>
 
@@ -150,10 +162,15 @@ export default function Home() {
             >
               💼
             </div>
-            <h3 style={{ marginBottom: "15px" }}>Connect with Talent</h3>
+            <h3 style={{ marginBottom: "15px" }}>
+              {userType === "business"
+                ? "Connect with Talent"
+                : "Improve Your Resume"}
+            </h3>
             <p style={{ color: "#666" }}>
-              Review matched candidates and connect directly with those who fit
-              your needs. No more endless resume screening.
+              {userType === "business"
+                ? "Review matched candidates and connect directly with those who fit your needs. No more endless resume screening."
+                : "With the saved time and energy, develop your skills and improve your resume by working on projects and completing courses. Check out our high-quality resources."}
             </p>
           </div>
         </div>
@@ -200,6 +217,9 @@ export default function Home() {
             padding: "12px 32px",
             borderRadius: "8px",
             fontSize: "18px",
+          }}
+          onClick={() => {
+            navigate("/signup");
           }}
         >
           {userType === "business" ? "Get Access Now" : "Upload Your Resume"}
@@ -256,7 +276,11 @@ export default function Home() {
         </section>
       </div>
 
-      <FAQ />
+      {/* FAQ Section */}
+      <div id="faq">
+        <FAQ />
+      </div>
+
       <Footer />
     </section>
   );

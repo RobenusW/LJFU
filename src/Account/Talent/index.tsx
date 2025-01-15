@@ -1,11 +1,17 @@
 import Editor from "./Editor";
 import { Route, Routes } from "react-router-dom";
-import Dashboard from "./Dashboard";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+
 export default function Talent() {
+  const { user } = useAuth();
   return (
     <Routes>
-      <Route path="/editor" element={<Editor />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      {user ? (
+        <Route path="/editor" element={<Editor />} />
+      ) : (
+        <Navigate to="/signin" replace />
+      )}
     </Routes>
   );
 }

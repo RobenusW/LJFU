@@ -5,24 +5,27 @@ import Business from "./Account/Business";
 import Talent from "./Account/Talent";
 import AuthScreen from "./Account/AuthScreen";
 import { AuthProvider } from "./AuthContext";
-import ProtectedRouteToDashboard from "./Account/ProtectedRoutes/ProtectedRouteToDashboard";
+import ProtectedRouteToResumes from "./Account/ProtectedRoutes/ProtectedRouteToResumes";
 import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin";
 import Initiated from "./Account/Initiated";
 import Companies from "./Home/DashboardBusinesses";
-import ResumesScreen from "./Account/Talent/Dashboard";
+import Resources from "./Account/Talent/Resources";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route element={<ProtectedRouteToDashboard />}>
+          <Route element={<ProtectedRouteToResumes />}>
             <Route path="/signup" element={<AuthScreen />} />
             <Route path="/signin" element={<AuthScreen />} />
-            <Route path="/home" element={<Navigate to="/talent" replace />} />
-            <Route path="/" element={<Navigate to="/talent" replace />} />
-            <Route path="/talent" element={<Home />} />
-            <Route path="/business" element={<Home />} />
+            <Route
+              path="/home"
+              element={<Navigate to="home/talent" replace />}
+            />
+            <Route path="/" element={<Navigate to="home/talent" replace />} />
+            <Route path="home/talent" element={<Home />} />
+            <Route path="home/business" element={<Home />} />
           </Route>
 
           <Route element={<ProtectedRouteToSignin />}>
@@ -32,7 +35,7 @@ export default function App() {
           <Route path="/talent/*" element={<Talent />} />
           <Route path="/business/*" element={<Business />} />
           <Route path="/companies/*" element={<Companies />} />
-          <Route path="/resumes" element={<ResumesScreen />} />
+          <Route path="/resources" element={<Resources />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

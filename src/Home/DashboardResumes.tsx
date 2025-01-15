@@ -59,7 +59,7 @@ export default function DashboardResumes({
                 fullWidth
                 onClick={() => {
                   const email = resume.generalInfo.email;
-                  navigate(`/resume/details/${email}`);
+                  navigate(`business/resume/details/${email}`);
                 }}
               >
                 View Details

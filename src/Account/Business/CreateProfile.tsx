@@ -131,7 +131,7 @@ export default function CreateProfile() {
       if (response.error) throw new Error(response.error.message);
 
       await updateUserRole();
-      navigate("/business/dashboard");
+      navigate("business/resumes");
     } catch (error) {
       handleError("Error creating business:", error);
     }
@@ -188,7 +188,7 @@ export default function CreateProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) {
-        throw new Error("User is not logged in");
+        return;
       }
 
       if (user.user_metadata.chosen_role === undefined) {

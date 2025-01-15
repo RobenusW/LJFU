@@ -12,7 +12,7 @@ export default function NavBar() {
     if (error) {
       console.error("Error during signout:", error);
     } else {
-      navigate("/signin");
+      return navigate("/signin");
     }
   };
 
@@ -48,7 +48,7 @@ export default function NavBar() {
         </a>
 
         <div style={{ display: "flex", gap: "24px" }}>
-          {!authenticated && (
+          {!authenticated && pathname.includes("home") && (
             <button
               onClick={() => {
                 const element = document.getElementById("how-it-works");
@@ -74,32 +74,119 @@ export default function NavBar() {
               How It Works
             </button>
           )}
+          {/* button for faqs */}
+          {pathname.includes("home") && (
+            <button
+              onClick={() => {
+                const element = document.getElementById("faq");
+                if (element) {
+                  const headerOffset = 100; // Adjust this value based on your navbar height
+                  const elementPosition = element.getBoundingClientRect().top;
+                  const offsetPosition =
+                    elementPosition + window.pageYOffset - headerOffset;
+                  window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth",
+                  });
+                }
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("faq") ? "#000" : "#666",
+                fontWeight: pathname.includes("faq") ? "600" : "400",
+              }}
+            >
+              FAQs
+            </button>
+          )}
+          {pathname.includes("home") && (
+            <button
+              onClick={() => navigate("/companies")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("companies") ? "#000" : "#666",
+                fontWeight: pathname.includes("companies") ? "600" : "400",
+              }}
+            >
+              Companies on Platform
+            </button>
+          )}
+          {authenticated?.user_metadata?.chosen_role === "business" && (
+            <button
+              onClick={() => navigate("/business/resumes")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("/resumes") ? "#000" : "#666",
+                fontWeight: pathname.includes("/resumes") ? "600" : "400",
+              }}
+            >
+              Resumes
+            </button>
+          )}
 
-          <button
-            onClick={() => navigate("/companies")}
-            style={{
-              background: "none",
-              border: "none",
-              padding: "8px 12px",
-              color: pathname.includes("companies") ? "#000" : "#666",
-              fontWeight: pathname.includes("companies") ? "600" : "400",
-            }}
-          >
-            Companies
-          </button>
+          {authenticated?.user_metadata?.chosen_role === "business" && (
+            <button
+              onClick={() => navigate("/business/savedresumes")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("savedresumes") ? "#000" : "#666",
+                fontWeight: pathname.includes("savedresumes") ? "600" : "400",
+              }}
+            >
+              Saved Resumes
+            </button>
+          )}
+          {authenticated?.user_metadata?.chosen_role === "business" && (
+            <button
+              onClick={() => navigate("/business/createprofile")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("createprofile") ? "#000" : "#666",
+                fontWeight: pathname.includes("createprofile") ? "600" : "400",
+              }}
+            >
+              Your Profile
+            </button>
+          )}
 
-          <button
-            onClick={() => navigate("/resumes")}
-            style={{
-              background: "none",
-              border: "none",
-              padding: "8px 12px",
-              color: pathname.includes("resumes") ? "#000" : "#666",
-              fontWeight: pathname.includes("resumes") ? "600" : "400",
-            }}
-          >
-            Resumes
-          </button>
+          {authenticated?.user_metadata?.chosen_role === "talent" && (
+            <button
+              onClick={() => navigate("/resources")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("resources") ? "#000" : "#666",
+                fontWeight: pathname.includes("resources") ? "600" : "400",
+              }}
+            >
+              Learning Resources
+            </button>
+          )}
+          {authenticated?.user_metadata.chosen_role === "talent" && (
+            <button
+              onClick={() => navigate(`/talent/editor`)}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("editor") ? "#000" : "#666",
+                fontWeight: pathname.includes("editor") ? "600" : "400",
+              }}
+            >
+              Editor
+            </button>
+          )}
         </div>
       </div>
 
@@ -123,7 +210,11 @@ export default function NavBar() {
         {!authenticated && (
           <button
             onClick={() =>
-              navigate(pathname.includes("business") ? "/talent" : "/business")
+              navigate(
+                pathname.includes("business")
+                  ? "/home/talent"
+                  : "/home/business"
+              )
             }
             style={{
               background: "none",

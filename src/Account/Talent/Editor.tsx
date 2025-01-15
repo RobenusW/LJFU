@@ -43,6 +43,7 @@ export default function ResumeEditor() {
   const [existingResume, setExistingResume] = useState<
     Database["public"]["Tables"]["resumes"]["Row"] | null
   >(null);
+
   const [expanded, setExpanded] = useState<string | false>("generalInfo");
 
   const handleAccordionChange =
@@ -92,8 +93,9 @@ export default function ResumeEditor() {
 
   useEffect(() => {
     const fetchResume = async () => {
+      console.log(user);
       if (!user) {
-        throw new Error("User is not logged in");
+        return;
       } else if (user.user_metadata.chosen_role === undefined) {
         return;
       } else if (user.user_metadata.chosen_role === "talent") {
@@ -103,6 +105,7 @@ export default function ResumeEditor() {
           .eq("user_id", user.id);
 
         setExistingResume(data?.[0] || null);
+        console.log(data?.[0]);
         if (error) {
           throw new Error("Error fetching resume");
         }
@@ -159,7 +162,7 @@ export default function ResumeEditor() {
       }
 
       // Navigate to the dashboard if all operations are successful
-      navigate(`/talent/dashboard`, { replace: true });
+      navigate(`/resources`, { replace: true });
     } catch (error: Error | unknown) {
       console.error("Error during resume submission:", error);
       alert(
