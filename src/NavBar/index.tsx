@@ -33,11 +33,14 @@ export default function NavBar() {
         zIndex: 1000,
       }}
     >
-      {/* Left side - Logo and main nav */}
       <div style={{ display: "flex", alignItems: "center", gap: "40px" }}>
-        <a
-          href="/"
+        {/* Left side - Logo and main nav */}
+        <button
+          onClick={() => navigate("/home")}
           style={{
+            background: "none",
+            border: "none",
+            padding: "8px 12px",
             fontSize: "18px",
             fontWeight: "700",
             textDecoration: "none",
@@ -45,8 +48,7 @@ export default function NavBar() {
           }}
         >
           LetJobsFindYou.com
-        </a>
-
+        </button>
         <div style={{ display: "flex", gap: "24px" }}>
           {!authenticated && pathname.includes("home") && (
             <button
@@ -101,38 +103,34 @@ export default function NavBar() {
               FAQs
             </button>
           )}
-          {pathname.includes("home") && (
-            <button
-              onClick={() => navigate("/companies")}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px 12px",
-                color: pathname.includes("companies") ? "#000" : "#666",
-                fontWeight: pathname.includes("companies") ? "600" : "400",
-              }}
-            >
-              Companies on Platform
-            </button>
-          )}
+
           {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
-              onClick={() => navigate("/business/resumes")}
+              onClick={() => {
+                {
+                  console.log(authenticated);
+                }
+                navigate("/business/resumes");
+              }}
               style={{
                 background: "none",
                 border: "none",
                 padding: "8px 12px",
                 color: pathname.includes("/resumes") ? "#000" : "#666",
-                fontWeight: pathname.includes("/resumes") ? "600" : "400",
+                fontWeight: pathname.includes("resumes") ? "600" : "400",
               }}
             >
               Resumes
             </button>
           )}
-
           {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
-              onClick={() => navigate("/business/savedresumes")}
+              onClick={() => {
+                {
+                  console.log(authenticated);
+                }
+                navigate("/business/savedresumes");
+              }}
               style={{
                 background: "none",
                 border: "none",

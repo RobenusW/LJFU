@@ -50,6 +50,10 @@ const theme = createTheme({
   },
 });
 
+{
+  /* Saved for future use once more companies are added */
+}
+
 export default function DashboardBusinesses() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

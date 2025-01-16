@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import NavBar from "../../NavBar";
 import SearchIcon from "@mui/icons-material/Search";
-import { ResumeFormValues } from "./FormValues";
+import { ResumeFormValues } from "../Talent/FormValues";
 
 export default function Dashboard() {
   const [resumes, setResumes] = useState<ResumeFormValues[]>([]);
@@ -85,7 +85,7 @@ export default function Dashboard() {
     }
   };
 
-  const applyFilters = () => {
+  useEffect(() => {
     let filtered = [...resumes];
 
     // Apply name search
@@ -141,11 +141,7 @@ export default function Dashboard() {
     }
 
     setFilteredResumes(filtered);
-  };
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, searchQuery, resumes, applyFilters]);
+  }, [filters, searchQuery, resumes]);
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <div style={{ marginTop: "80px" }}>

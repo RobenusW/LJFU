@@ -7,9 +7,9 @@ export default function Business() {
   return (
     <div>
       <Routes>
-        <Route path="/createprofile" element={<CreateProfile />} />
-        <Route path="/savedresumes" element={<SavedResumes />} />
-        <Route path="/resumes" element={<ResumesDashboard />} />
+        <Route path="createprofile" element={<CreateProfile />} />
+        <Route path="savedresumes" element={<SavedResumes />} />
+        <Route path="resumes" element={<ResumesDashboard />} />
       </Routes>
     </div>
   );
