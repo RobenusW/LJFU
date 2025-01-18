@@ -142,7 +142,8 @@ export default function NavBar() {
               Saved Resumes
             </button>
           )}
-          {authenticated?.user_metadata?.chosen_role === "business" && (
+          {/* temporary disabled until we have more users */}
+          {/* {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
               onClick={() => navigate("/business/createprofile")}
               style={{
@@ -155,7 +156,7 @@ export default function NavBar() {
             >
               Your Profile
             </button>
-          )}
+          )} */}
 
           {authenticated?.user_metadata?.chosen_role === "talent" && (
             <button

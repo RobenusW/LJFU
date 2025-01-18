@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useNavigate } from "react-router-dom";
@@ -51,21 +51,6 @@ export default function ResumeEditor() {
       setExpanded(isExpanded ? panel : false);
     };
 
-  const [generalInfo, setGeneralInfo] = useState<ResumeFormValues>({
-    first_name: "",
-    last_name: "",
-    email: "",
-    university: "",
-    position: [],
-    metro_area: "",
-    years_of_experience: 0,
-    technologies: [],
-    languages: [],
-    resume_pdf: "",
-    user_id: "",
-    relocate: false,
-  });
-
   const [universityQuery, setUniversityQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const { universities, error } = useUniversitySearch(
@@ -73,27 +58,33 @@ export default function ResumeEditor() {
     selectedCountry
   );
 
-  const { control, register, handleSubmit, reset, getValues, trigger } =
-    useForm<ResumeFormValues>({
-      defaultValues: {
-        first_name: "",
-        last_name: "",
-        email: "",
-        university: "",
-        position: [],
-        metro_area: "",
-        years_of_experience: 0,
-        technologies: [],
-        languages: [],
-        resume_pdf: "",
-        user_id: "",
-        relocate: false,
-      },
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    trigger,
+    formState: { errors },
+  } = useForm<ResumeFormValues>({
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      university: "",
+      position: [],
+      metro_area: "",
+      years_of_experience: 0,
+      technologies: [],
+      languages: [],
+      resume_pdf: "",
+      user_id: "",
+      relocate: false,
+    },
+  });
 
   useEffect(() => {
     const fetchResume = async () => {
-      console.log(user);
       if (!user) {
         return;
       } else if (user.user_metadata.chosen_role === undefined) {
@@ -252,6 +243,8 @@ export default function ResumeEditor() {
                       fullWidth
                       {...register("first_name", { required: true })}
                       required
+                      error={!!errors.first_name}
+                      helperText={errors.first_name && "First name is required"}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -260,53 +253,59 @@ export default function ResumeEditor() {
                       fullWidth
                       {...register("last_name", { required: true })}
                       required
+                      error={!!errors.last_name}
+                      helperText={errors.last_name && "Last name is required"}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       label="Email"
                       fullWidth
-                      {...register("email", { required: true })}
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: "Invalid email address",
+                        },
+                      })}
                       required
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      select
-                      label="Position"
-                      fullWidth
-                      required
-                      {...register("position", {
-                        required: true,
-                      })}
-                      value={generalInfo.position}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setGeneralInfo({
-                          ...generalInfo,
-                          position:
-                            typeof value === "string"
-                              ? [value]
-                              : (value as string[]),
-                        });
-                      }}
-                      SelectProps={{
-                        multiple: true,
-                        MenuProps: {
-                          PaperProps: {
-                            style: {
-                              maxHeight: 224,
+                    <Controller
+                      name="position"
+                      control={control}
+                      rules={{ required: "Position is required" }}
+                      render={({ field }) => (
+                        <TextField
+                          select
+                          label="Position"
+                          fullWidth
+                          required
+                          {...field}
+                          SelectProps={{
+                            multiple: true,
+                            MenuProps: {
+                              PaperProps: {
+                                style: {
+                                  maxHeight: 224,
+                                },
+                              },
                             },
-                          },
-                        },
-                      }}
-                    >
-                      {positions.map((position) => (
-                        <MenuItem key={position} value={position}>
-                          {position}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                          }}
+                          error={!!errors.position}
+                          helperText={errors.position && "Position is required"}
+                        >
+                          {positions.map((position) => (
+                            <MenuItem key={position} value={position}>
+                              {position}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
                   </Grid>
 
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -330,23 +329,24 @@ export default function ResumeEditor() {
                     </TextField>
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      required
-                      label="University"
-                      {...register("university", {
-                        required: true,
-                      })}
-                      value={generalInfo.university}
-                      onChange={(e) => {
-                        setGeneralInfo({
-                          ...generalInfo,
-                          university: e.target.value,
-                        });
-                        setUniversityQuery(e.target.value);
-                      }}
-                      error={!!error}
-                      helperText={error || ""}
+                    <Controller
+                      name="university"
+                      control={control}
+                      rules={{ required: "University is required" }}
+                      render={({ field }) => (
+                        <TextField
+                          fullWidth
+                          required
+                          label="University"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            setUniversityQuery(e.target.value);
+                          }}
+                          error={!!errors.university || !!error}
+                          helperText={errors.university?.message || error || ""}
+                        />
+                      )}
                     />
                     {universities.length > 0 && (
                       <Paper
@@ -363,8 +363,8 @@ export default function ResumeEditor() {
                           <MenuItem
                             key={index}
                             onClick={() => {
-                              setGeneralInfo({
-                                ...generalInfo,
+                              reset({
+                                ...getValues(),
                                 university: uni.name,
                               });
                               setUniversityQuery("");
@@ -385,59 +385,68 @@ export default function ResumeEditor() {
                   </Grid>
 
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      select
-                      label="Current Metro Area"
-                      fullWidth
-                      {...register("metro_area", {
-                        required: true,
-                      })}
-                      required
-                      value={generalInfo.metro_area}
-                      onChange={(e) => {
-                        setGeneralInfo({
-                          ...generalInfo,
-                          metro_area: e.target.value,
-                        });
-                      }}
-                    >
-                      {metroAreas.map((metro_area) => (
-                        <MenuItem key={metro_area} value={metro_area}>
-                          {metro_area}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    <Controller
+                      name="metro_area"
+                      control={control}
+                      rules={{ required: "Metro area is required" }}
+                      render={({ field }) => (
+                        <TextField
+                          select
+                          label="Current Metro Area"
+                          fullWidth
+                          {...field}
+                          required
+                          error={!!errors.metro_area}
+                          helperText={
+                            errors.metro_area && "Metro area is required"
+                          }
+                        >
+                          {metroAreas.map((metro_area) => (
+                            <MenuItem key={metro_area} value={metro_area}>
+                              {metro_area}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
                   </Grid>
 
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          {...register("relocate", {
-                            required: true,
-                          })}
-                        />
-                      }
-                      label="Willing to Relocate?"
-                    />
-                  </FormGroup>
-                  <Grid size={{ xs: 12 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            {...register("relocate", {
+                              required: false,
+                            })}
+                          />
+                        }
+                        label="Willing to Relocate?"
+                      />
+                    </FormGroup>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       label="Years of Relevant Experience"
                       type="number"
                       fullWidth
                       {...register("years_of_experience", {
                         valueAsNumber: true,
-                        required: true,
+                        required: "Years of experience is required",
+                        min: {
+                          value: 0,
+                          message: "Experience cannot be negative",
+                        },
                       })}
                       required
+                      error={!!errors.years_of_experience}
+                      helperText={errors.years_of_experience?.message}
                     />
                   </Grid>
                 </Grid>
               </AccordionDetails>
             </Accordion>
-
-            {/* Languages */}
+            {/* Programming Languages */}
             <Accordion
               expanded={expanded === "languages"}
               onChange={handleAccordionChange("languages")}
@@ -466,36 +475,70 @@ export default function ResumeEditor() {
                 {languagesFields.map((field, index) => (
                   <Box key={field.id} mt={2}>
                     <Grid container spacing={2}>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          select
-                          label="Programming Language"
-                          fullWidth
-                          {...register(`languages.${index}.skill` as const)}
-                          required
-                        >
-                          {programmingLanguages.map((lang) => (
-                            <MenuItem key={lang} value={lang}>
-                              {lang}
-                            </MenuItem>
-                          ))}
-                        </TextField>
+                      {/* Language Skill Field */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name={`languages.${index}.skill`}
+                          control={control}
+                          defaultValue={field.skill || ""}
+                          rules={{
+                            required: "Programming language is required",
+                          }}
+                          render={({
+                            field: controllerField,
+                            fieldState: { error },
+                          }) => (
+                            <TextField
+                              {...controllerField}
+                              select
+                              label="Programming Language"
+                              fullWidth
+                              error={!!error}
+                              helperText={error ? error.message : null}
+                              required
+                            >
+                              {programmingLanguages.map((lang) => (
+                                <MenuItem key={lang} value={lang}>
+                                  {lang}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                          )}
+                        />
                       </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          select
-                          label="Skill Level"
-                          fullWidth
-                          defaultValue="familiar"
-                          {...register(`languages.${index}.level` as const)}
-                          required
-                        >
-                          <MenuItem value="familiar">Familiar</MenuItem>
-                          <MenuItem value="well-versed">Well-Versed</MenuItem>
-                          <MenuItem value="expert">Expert</MenuItem>
-                        </TextField>
+
+                      {/* Language Skill Level Field */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name={`languages.${index}.level`}
+                          control={control}
+                          defaultValue={field.level || ""}
+                          rules={{ required: "Skill level is required" }}
+                          render={({
+                            field: controllerField,
+                            fieldState: { error },
+                          }) => (
+                            <TextField
+                              {...controllerField}
+                              select
+                              label="Skill Level"
+                              fullWidth
+                              error={!!error}
+                              helperText={error ? error.message : null}
+                              required
+                            >
+                              <MenuItem value="familiar">Familiar</MenuItem>
+                              <MenuItem value="well-versed">
+                                Well-Versed
+                              </MenuItem>
+                              <MenuItem value="expert">Expert</MenuItem>
+                            </TextField>
+                          )}
+                        />
                       </Grid>
                     </Grid>
+
+                    {/* Remove Language Button */}
                     <IconButton
                       onClick={() => removeLanguage(index)}
                       color="error"
@@ -504,15 +547,18 @@ export default function ResumeEditor() {
                     </IconButton>
                   </Box>
                 ))}
+
+                {/* Add Language Button */}
                 <Button
                   startIcon={<AddCircleOutlineIcon />}
                   onClick={() =>
                     appendLanguage({
                       skill: "",
-                      level: "familiar",
+                      level: "",
                     })
                   }
                   disabled={languagesFields.length >= 15}
+                  sx={{ mt: 2 }}
                 >
                   Add Programming Language
                 </Button>
@@ -548,36 +594,68 @@ export default function ResumeEditor() {
                 {technologiesFields.map((field, index) => (
                   <Box key={field.id} mt={2}>
                     <Grid container spacing={2}>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          select
-                          label="Technology"
-                          fullWidth
-                          {...register(`technologies.${index}.skill` as const)}
-                          required
-                        >
-                          {technologies.map((tech) => (
-                            <MenuItem key={tech} value={tech}>
-                              {tech}
-                            </MenuItem>
-                          ))}
-                        </TextField>
+                      {/* Technology Skill Field */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name={`technologies.${index}.skill`}
+                          control={control}
+                          defaultValue={field.skill || ""}
+                          rules={{ required: "Technology is required" }}
+                          render={({
+                            field: controllerField,
+                            fieldState: { error },
+                          }) => (
+                            <TextField
+                              {...controllerField}
+                              select
+                              label="Technology"
+                              fullWidth
+                              error={!!error}
+                              helperText={error ? error.message : null}
+                              required
+                            >
+                              {technologies.map((tech) => (
+                                <MenuItem key={tech} value={tech}>
+                                  {tech}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                          )}
+                        />
                       </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField
-                          select
-                          label="Skill Level"
-                          fullWidth
-                          defaultValue="familiar"
-                          {...register(`technologies.${index}.level` as const)}
-                          required
-                        >
-                          <MenuItem value="familiar">Familiar</MenuItem>
-                          <MenuItem value="well-versed">Well-Versed</MenuItem>
-                          <MenuItem value="expert">Expert</MenuItem>
-                        </TextField>
+
+                      {/* Technology Skill Level Field */}
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Controller
+                          name={`technologies.${index}.level`}
+                          control={control}
+                          defaultValue={field.level || ""}
+                          rules={{ required: "Skill level is required" }}
+                          render={({
+                            field: controllerField,
+                            fieldState: { error },
+                          }) => (
+                            <TextField
+                              {...controllerField}
+                              select
+                              label="Skill Level"
+                              fullWidth
+                              error={!!error}
+                              helperText={error ? error.message : null}
+                              required
+                            >
+                              <MenuItem value="familiar">Familiar</MenuItem>
+                              <MenuItem value="well-versed">
+                                Well-Versed
+                              </MenuItem>
+                              <MenuItem value="expert">Expert</MenuItem>
+                            </TextField>
+                          )}
+                        />
                       </Grid>
                     </Grid>
+
+                    {/* Remove Technology Button */}
                     <IconButton
                       onClick={() => removeTechnology(index)}
                       color="error"
@@ -586,15 +664,18 @@ export default function ResumeEditor() {
                     </IconButton>
                   </Box>
                 ))}
+
+                {/* Add Technology Button */}
                 <Button
                   startIcon={<AddCircleOutlineIcon />}
                   onClick={() =>
                     appendTechnology({
                       skill: "",
-                      level: "familiar",
+                      level: "",
                     })
                   }
                   disabled={technologiesFields.length >= 20}
+                  sx={{ mt: 2 }}
                 >
                   Add Technology
                 </Button>

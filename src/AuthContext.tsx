@@ -6,7 +6,7 @@ import { AuthContext } from "./CreateContext";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [isInitialSession, setIsInitialSession] = useState(true);
   const navigate = useNavigate();
 
   // Handle initial session
@@ -16,43 +16,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { session },
       } = await supabase.auth.getSession();
       setUser(session?.user || null);
-      setInitialLoad(false);
     };
     getSession();
   }, []);
 
   // Handle auth state changes
   useEffect(() => {
-    if (initialLoad) return; // Skip subscription during initial load
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
-        setUser(session?.user || null);
-        // Only navigate on actual sign in, not session restore
+      setUser(session?.user || null);
+
+      // Only navigate on actual sign in, not on session restore or tab switches
+      if (event === "SIGNED_IN" && isInitialSession) {
+        setIsInitialSession(false);
+
         if (session?.user?.user_metadata?.chosen_role === "talent") {
           navigate("/resources"); // Navigate to dashboard
         } else if (session?.user?.user_metadata?.chosen_role === "business") {
           navigate("/business/resumes"); // Navigate to dashboard
         } else {
-          navigate("/initiate"); // Navigate to dashboard
+          navigate("/initiate");
         }
       } else if (event === "SIGNED_OUT") {
         setUser(null);
-        navigate("/"); // Navigate to home
+        navigate("/"); // Navigate to home on sign out
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, initialLoad]);
-
-  // Don't render children until initial load is complete
-  if (initialLoad) {
-    return null;
-  }
+  }, [navigate, isInitialSession]);
 
   return (
     <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>

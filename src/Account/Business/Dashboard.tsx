@@ -98,13 +98,19 @@ export default function Dashboard() {
       );
     }
 
-    filtered = filtered.filter(
-      (resume) => resume.university === filters.university
-    );
+    // Only apply university filter if a university is selected
+    if (filters.university) {
+      filtered = filtered.filter(
+        (resume) => resume.university === filters.university
+      );
+    }
 
-    filtered = filtered.filter((resume) =>
-      resume.position.includes(filters.position)
-    );
+    // Only apply position filter if a position is selected
+    if (filters.position) {
+      filtered = filtered.filter((resume) =>
+        resume.position.includes(filters.position)
+      );
+    }
 
     if (filters.metro_area && !filters.relocate) {
       filtered = filtered.filter(
@@ -118,7 +124,7 @@ export default function Dashboard() {
       );
     }
 
-    if (filters.minYearsOfExperience !== null) {
+    if (filters.minYearsOfExperience > 0) {
       filtered = filtered.filter(
         (resume) => resume.years_of_experience >= filters.minYearsOfExperience
       );
