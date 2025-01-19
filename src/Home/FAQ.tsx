@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const FAQItem = ({
   question,
@@ -45,6 +46,8 @@ const FAQItem = ({
 
 // Update your Home component
 export default function Home() {
+  const location = useLocation();
+
   const faqs = [
     {
       question: "How does LetJobsFindYou work?",
@@ -53,9 +56,17 @@ export default function Home() {
     },
 
     {
+      question: "How much does LetJobsFindYou cost?",
+      answer: location.pathname.includes("business")
+        ? "$49 per month for businesses, 30-day money back guarantee, no questions asked."
+        : "Free. No cost for talent.",
+    },
+
+    {
       question: "How do I get started?",
-      answer:
-        "Simply create a profile for your business, tell us what you are looking for, and we will start matching you with the best talent or you can manually filter for specific criteria.",
+      answer: location.pathname.includes("business")
+        ? "Simply create a profile for your business, tell us what you are looking for, and we will start matching you with the best talent or you can manually filter for specific criteria."
+        : "Upload your resume and businesses will reach out to you if interested.",
     },
     {
       question:

@@ -58,6 +58,65 @@ export default function ResumeEditor() {
     selectedCountry
   );
 
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const uploadPdfToStorage = async (file: File): Promise<string> => {
+    const allowedTypes = ["application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Please upload a PDF file");
+    }
+
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      throw new Error("File size must be less than 2MB");
+    }
+
+    try {
+      if (!user) {
+        throw new Error("User is not logged in to upload resume");
+      }
+
+      const fileExt = file.name.split(".").pop();
+      const cleanFileName = `resume_${user.id}.${fileExt}`;
+      const filePath = `${user.id}/${cleanFileName}`;
+
+      const { error: findError } = await supabase
+        .from("resumes")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (findError) {
+        throw new Error(`Error finding resume: ${findError.message}`);
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from("resumes")
+        .upload(filePath, file, {
+          upsert: true,
+          contentType: "application/pdf",
+        });
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      const { data } = supabase.storage.from("resumes").getPublicUrl(filePath);
+      return data.publicUrl;
+    } catch (error: Error | unknown) {
+      throw new Error(`Error uploading file: ${(error as Error).message}`);
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setPdfFile(file);
+      setUploadError(null);
+    }
+  };
+
   const {
     control,
     register,
@@ -96,7 +155,6 @@ export default function ResumeEditor() {
           .eq("user_id", user.id);
 
         setExistingResume(data?.[0] || null);
-        console.log(data?.[0]);
         if (error) {
           throw new Error("Error fetching resume");
         }
@@ -125,7 +183,21 @@ export default function ResumeEditor() {
         throw new Error("User is not logged in");
       }
 
-      const payload = { ...data, user_id: user.id };
+      let pdfUrl = data.resume_pdf;
+      if (pdfFile) {
+        try {
+          pdfUrl = await uploadPdfToStorage(pdfFile);
+        } catch (error) {
+          setUploadError((error as Error).message);
+          return;
+        }
+      }
+
+      const payload = {
+        ...data,
+        user_id: user.id,
+        resume_pdf: pdfUrl,
+      };
 
       let response;
       if (existingResume) {
@@ -693,12 +765,34 @@ export default function ResumeEditor() {
               <AccordionDetails>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12 }}>
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      {...register("resume_pdf", { required: true })}
-                      required
-                    />
+                    <Box sx={{ mt: 2, mb: 2 }}>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileChange}
+                        style={{ display: "none" }}
+                        id="pdf-upload"
+                      />
+                      <label htmlFor="pdf-upload">
+                        <Button
+                          variant="contained"
+                          component="span"
+                          startIcon={<AddCircleOutlineIcon />}
+                        >
+                          Upload Resume PDF
+                        </Button>
+                      </label>
+                      {pdfFile && (
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          Selected file: {pdfFile.name}
+                        </Typography>
+                      )}
+                      {uploadError && (
+                        <Alert severity="error" sx={{ mt: 1 }}>
+                          {uploadError}
+                        </Alert>
+                      )}
+                    </Box>
                   </Grid>
                 </Grid>
               </AccordionDetails>

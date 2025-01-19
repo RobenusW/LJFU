@@ -275,7 +275,6 @@ export default function Home() {
           </button>
         </section>
       </div>
-
       {/* FAQ Section */}
       <div id="faq">
         <FAQ />

@@ -74,9 +74,8 @@ export default function CreateProfile() {
       if (!data?.publicUrl) {
         throw new Error("Failed to get public URL");
       }
-      const logoUrl = data.publicUrl;
 
-      return logoUrl;
+      return data.publicUrl;
     } catch (error) {
       console.error("Upload error:", error);
       throw error instanceof Error

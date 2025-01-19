@@ -46,6 +46,7 @@ export type Database = {
           resume_pdf: string
           technologies: Database["public"]["CompositeTypes"]["skill_obj"][]
           university: string
+          updated_at: string | null
           user_id: string
           years_of_experience: number
         }
@@ -61,6 +62,7 @@ export type Database = {
           resume_pdf: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]
           university?: string
+          updated_at?: string | null
           user_id: string
           years_of_experience?: number
         }
@@ -76,6 +78,7 @@ export type Database = {
           resume_pdf?: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]
           university?: string
+          updated_at?: string | null
           user_id?: string
           years_of_experience?: number
         }

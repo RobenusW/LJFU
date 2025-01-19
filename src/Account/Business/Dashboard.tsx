@@ -13,6 +13,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Button,
+  CardActions,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
 import { useState, useEffect } from "react";
@@ -148,6 +150,19 @@ export default function Dashboard() {
 
     setFilteredResumes(filtered);
   }, [filters, searchQuery, resumes]);
+
+  const ClearFilters = () => {
+    setFilters({
+      university: "",
+      position: "",
+      metro_area: "",
+      relocate: null,
+      minYearsOfExperience: 0,
+      technologies: [],
+      languages: [],
+    });
+  };
+
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <div style={{ marginTop: "80px" }}>
@@ -317,6 +332,18 @@ export default function Dashboard() {
                 )}
               />
             </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              {/* Clear Filters Button */}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={ClearFilters}
+                sx={{ mt: 2 }}
+              >
+                Clear Filters
+              </Button>
+            </Grid>
           </Grid>
         </Paper>
 
@@ -371,6 +398,11 @@ export default function Dashboard() {
                     ))}
                   </Box>
                 </CardContent>
+                <CardActions>
+                  <Button size="small" color="primary">
+                    See Resume
+                  </Button>
+                </CardActions>
               </Card>
             </Grid>
           ))}
