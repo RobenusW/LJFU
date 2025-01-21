@@ -123,25 +123,6 @@ export default function NavBar() {
               Resumes
             </button>
           )}
-          {authenticated?.user_metadata?.chosen_role === "business" && (
-            <button
-              onClick={() => {
-                {
-                  console.log(authenticated);
-                }
-                navigate("/business/savedresumes");
-              }}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px 12px",
-                color: pathname.includes("savedresumes") ? "#000" : "#666",
-                fontWeight: pathname.includes("savedresumes") ? "600" : "400",
-              }}
-            >
-              Saved Resumes
-            </button>
-          )}
           {/* temporary disabled until we have more users */}
           {/* {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
@@ -158,20 +139,6 @@ export default function NavBar() {
             </button>
           )} */}
 
-          {authenticated?.user_metadata?.chosen_role === "talent" && (
-            <button
-              onClick={() => navigate("/resources")}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px 12px",
-                color: pathname.includes("resources") ? "#000" : "#666",
-                fontWeight: pathname.includes("resources") ? "600" : "400",
-              }}
-            >
-              Learning Resources
-            </button>
-          )}
           {authenticated?.user_metadata.chosen_role === "talent" && (
             <button
               onClick={() => navigate(`/talent/editor`)}
@@ -184,6 +151,21 @@ export default function NavBar() {
               }}
             >
               Editor
+            </button>
+          )}
+
+          {authenticated?.user_metadata?.chosen_role === "talent" && (
+            <button
+              onClick={() => navigate("/resources")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("resources") ? "#000" : "#666",
+                fontWeight: pathname.includes("resources") ? "600" : "400",
+              }}
+            >
+              Learning Resources
             </button>
           )}
         </div>

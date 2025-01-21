@@ -130,7 +130,7 @@ export default function CreateProfile() {
       if (response.error) throw new Error(response.error.message);
 
       await updateUserRole();
-      navigate("business/resumes");
+      navigate("/business/resumes");
     } catch (error) {
       handleError("Error creating business:", error);
     }

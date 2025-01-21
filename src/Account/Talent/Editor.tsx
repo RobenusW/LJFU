@@ -14,14 +14,12 @@ import {
   MenuItem,
   Alert,
   AlertTitle,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   Paper,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { Unstable_NumberInput as NumberInput } from "@mui/base/Unstable_NumberInput";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useNavigate } from "react-router-dom";
@@ -81,16 +79,6 @@ export default function ResumeEditor() {
       const cleanFileName = `resume_${user.id}.${fileExt}`;
       const filePath = `${user.id}/${cleanFileName}`;
 
-      const { error: findError } = await supabase
-        .from("resumes")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (findError) {
-        throw new Error(`Error finding resume: ${findError.message}`);
-      }
-
       const { error: uploadError } = await supabase.storage
         .from("resumes")
         .upload(filePath, file, {
@@ -129,7 +117,6 @@ export default function ResumeEditor() {
     defaultValues: {
       first_name: "",
       last_name: "",
-      email: "",
       university: "",
       position: [],
       metro_area: "",
@@ -162,7 +149,6 @@ export default function ResumeEditor() {
         reset({
           first_name: resume.first_name,
           last_name: resume.last_name,
-          email: resume.email,
           university: resume.university,
           position: resume.position,
           metro_area: resume.metro_area,
@@ -195,6 +181,7 @@ export default function ResumeEditor() {
 
       const payload = {
         ...data,
+        relocate: data.relocate,
         user_id: user.id,
         resume_pdf: pdfUrl,
       };
@@ -238,7 +225,8 @@ export default function ResumeEditor() {
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const values = getValues();
+    let values = getValues();
+    values = { ...values, relocate: Boolean(values.relocate) };
 
     // Helper function to check if a value is non-empty
     const isNonEmpty = (value: unknown): boolean => {
@@ -330,22 +318,6 @@ export default function ResumeEditor() {
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="Email"
-                      fullWidth
-                      {...register("email", {
-                        required: "Email is required",
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: "Invalid email address",
-                        },
-                      })}
-                      required
-                      error={!!errors.email}
-                      helperText={errors.email?.message}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Controller
                       name="position"
                       control={control}
@@ -353,7 +325,7 @@ export default function ResumeEditor() {
                       render={({ field }) => (
                         <TextField
                           select
-                          label="Position"
+                          label="Position (Select Multiple)"
                           fullWidth
                           required
                           {...field}
@@ -390,9 +362,6 @@ export default function ResumeEditor() {
                         setSelectedCountry(e.target.value);
                       }}
                     >
-                      <MenuItem value="">
-                        <em>All Countries</em>
-                      </MenuItem>
                       {countries.map((country) => (
                         <MenuItem key={country} value={country}>
                           {country}
@@ -484,35 +453,60 @@ export default function ResumeEditor() {
                   </Grid>
 
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <FormGroup>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            {...register("relocate", {
-                              required: false,
-                            })}
-                          />
-                        }
-                        label="Willing to Relocate?"
-                      />
-                    </FormGroup>
+                    <Controller
+                      name="relocate"
+                      control={control}
+                      rules={{ required: "Relocation question is necessary" }}
+                      render={({ field }) => (
+                        <TextField
+                          select
+                          label="Willing to Relocate?"
+                          fullWidth
+                          {...field}
+                          required
+                          error={!!errors.relocate}
+                          helperText={
+                            errors.relocate &&
+                            "Relocation question is necessary"
+                          }
+                        >
+                          <MenuItem key="Yes" value={"true"}>
+                            Yes
+                          </MenuItem>
+                          <MenuItem key="No" value={"false"}>
+                            No
+                          </MenuItem>
+                        </TextField>
+                      )}
+                    />
                   </Grid>
+
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      label="Years of Relevant Experience"
-                      type="number"
-                      fullWidth
-                      {...register("years_of_experience", {
-                        valueAsNumber: true,
+                    <Controller
+                      name="years_of_experience"
+                      control={control}
+                      rules={{
                         required: "Years of experience is required",
-                        min: {
-                          value: 0,
-                          message: "Experience cannot be negative",
-                        },
-                      })}
-                      required
-                      error={!!errors.years_of_experience}
-                      helperText={errors.years_of_experience?.message}
+                      }}
+                      render={({ field }) => (
+                        <NumberInput
+                          {...field}
+                          error={!!errors.years_of_experience}
+                          id="years_of_experience"
+                          aria-label="Years of Relevant Experience"
+                          min={0}
+                          max={100}
+                          step={1}
+                          style={{
+                            width: "100%",
+                            padding: "16.5px 14px",
+                            borderRadius: "4px",
+                            border: errors.years_of_experience
+                              ? "1px solid red"
+                              : "1px solid #c4c4c4",
+                          }}
+                        />
+                      )}
                     />
                   </Grid>
                 </Grid>

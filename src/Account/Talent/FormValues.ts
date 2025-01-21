@@ -6,7 +6,6 @@ interface SkillObj {
 export type ResumeFormValues = {
   first_name: string;
   last_name: string;
-  email: string;
   university: string;
   position: string[];
   metro_area: string;

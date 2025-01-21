@@ -35,7 +35,6 @@ export type Database = {
       }
       resumes: {
         Row: {
-          email: string
           first_name: string
           id: string
           languages: Database["public"]["CompositeTypes"]["skill_obj"][]
@@ -51,7 +50,6 @@ export type Database = {
           years_of_experience: number
         }
         Insert: {
-          email: string
           first_name: string
           id?: string
           languages?: Database["public"]["CompositeTypes"]["skill_obj"][]
@@ -67,7 +65,6 @@ export type Database = {
           years_of_experience?: number
         }
         Update: {
-          email?: string
           first_name?: string
           id?: string
           languages?: Database["public"]["CompositeTypes"]["skill_obj"][]
@@ -89,7 +86,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_email: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
