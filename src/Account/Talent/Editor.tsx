@@ -112,11 +112,12 @@ export default function ResumeEditor() {
     getValues,
     trigger,
     formState: { errors },
+    setValue,
   } = useForm<ResumeFormValues>({
     defaultValues: {
       first_name: "",
       last_name: "",
-      university: "",
+      education: [],
       position: [],
       metro_area: "",
       years_of_experience: 0,
@@ -148,7 +149,7 @@ export default function ResumeEditor() {
         reset({
           first_name: resume.first_name,
           last_name: resume.last_name,
-          university: resume.university,
+          education: resume.education || [],
           position: resume.position,
           metro_area: resume.metro_area,
           years_of_experience: resume.years_of_experience,
@@ -268,6 +269,11 @@ export default function ResumeEditor() {
     remove: removeLanguage,
   } = useFieldArray({ control, name: "languages" });
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "education",
+  });
+
   return (
     <>
       <div style={{ marginTop: "80px" }}>
@@ -349,79 +355,6 @@ export default function ResumeEditor() {
                         </TextField>
                       )}
                     />
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      select
-                      fullWidth
-                      label="Country of Study"
-                      value={selectedCountry}
-                      onChange={(e) => {
-                        setSelectedCountry(e.target.value);
-                      }}
-                    >
-                      {countries.map((country) => (
-                        <MenuItem key={country} value={country}>
-                          {country}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Controller
-                      name="university"
-                      control={control}
-                      rules={{ required: "University is required" }}
-                      render={({ field }) => (
-                        <TextField
-                          fullWidth
-                          required
-                          label="University"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e.target.value);
-                            setUniversityQuery(e.target.value);
-                          }}
-                          error={!!errors.university || !!error}
-                          helperText={errors.university?.message || error || ""}
-                        />
-                      )}
-                    />
-                    {universities.length > 0 && (
-                      <Paper
-                        sx={{
-                          mt: 1,
-                          maxHeight: 200,
-                          overflowY: "auto",
-                          position: "absolute",
-                          zIndex: 1000,
-                          width: "calc(100% - 32px)",
-                        }}
-                      >
-                        {universities.map((uni, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => {
-                              reset({
-                                ...getValues(),
-                                university: uni.name,
-                              });
-                              setUniversityQuery("");
-                            }}
-                          >
-                            {uni.name}
-                            <Typography
-                              variant="caption"
-                              color="textSecondary"
-                              sx={{ ml: 1 }}
-                            >
-                              {uni.country}
-                            </Typography>
-                          </MenuItem>
-                        ))}
-                      </Paper>
-                    )}
                   </Grid>
 
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -508,6 +441,142 @@ export default function ResumeEditor() {
                 </Grid>
               </AccordionDetails>
             </Accordion>
+
+            {/* Education */}
+            <Accordion
+              expanded={expanded === "education"}
+              onChange={handleAccordionChange("education")}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">Education</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Education
+                      </Typography>
+                      {/* Universities */}
+
+                      <Box sx={{ mb: 1 }}>
+                        <TextField
+                          select
+                          fullWidth
+                          label="Country"
+                          value={selectedCountry}
+                          onChange={(e) => {
+                            setSelectedCountry(e.target.value);
+                          }}
+                        >
+                          {countries.map((country) => (
+                            <MenuItem key={country} value={country}>
+                              {country}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Box>
+
+                      <Box>
+                        {fields.map((field, index) => (
+                          <Box key={field.id} sx={{ mb: 2 }}>
+                            <Box sx={{ mb: 1 }}>
+                              <Controller
+                                name={`education.${index}.university`}
+                                control={control}
+                                rules={{ required: "University is required" }}
+                                render={({ field: { onChange, value } }) => (
+                                  <TextField
+                                    fullWidth
+                                    label="University"
+                                    value={value}
+                                    onChange={(e) => {
+                                      onChange(e.target.value);
+                                      setUniversityQuery(e.target.value);
+                                    }}
+                                    error={
+                                      !!errors.education?.[index]?.university ||
+                                      !!error
+                                    }
+                                    helperText={
+                                      errors.education?.[index]?.university
+                                        ?.message ||
+                                      error ||
+                                      ""
+                                    }
+                                  />
+                                )}
+                              />
+                            </Box>
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                              }}
+                            >
+                              <Button
+                                onClick={() => remove(index)}
+                                color="error"
+                                startIcon={<RemoveCircleOutlineIcon />}
+                                size="small"
+                              >
+                                Remove University
+                              </Button>
+                            </Box>
+                          </Box>
+                        ))}
+
+                        {/* University Suggestions */}
+                        {universities.length > 0 && universityQuery && (
+                          <Paper
+                            sx={{
+                              mt: 1,
+                              maxHeight: 200,
+                              overflowY: "auto",
+                              position: "absolute",
+                              width: "calc(100% - 32px)",
+                              zIndex: 1000,
+                            }}
+                          >
+                            {universities.map((uni, index) => (
+                              <MenuItem
+                                key={index}
+                                onClick={() => {
+                                  const currentIndex = fields.length - 1;
+                                  if (currentIndex >= 0) {
+                                    setValue(
+                                      `education.${currentIndex}.university`,
+                                      uni.name
+                                    );
+                                    setSelectedCountry(uni.country);
+                                  }
+                                  setUniversityQuery("");
+                                }}
+                              >
+                                {uni.name} - {uni.country}
+                              </MenuItem>
+                            ))}
+                          </Paper>
+                        )}
+
+                        {/* Add University Button */}
+                        <Button
+                          variant="contained"
+                          component="span"
+                          startIcon={<AddCircleOutlineIcon />}
+                          onClick={() => append({ university: "" })}
+                          sx={{ mt: 2 }}
+                        >
+                          Add University
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+
             {/* Programming Languages */}
             <Accordion
               expanded={expanded === "languages"}

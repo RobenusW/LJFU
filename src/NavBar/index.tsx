@@ -150,6 +150,21 @@ export default function NavBar() {
               Resumes
             </button>
           )}
+
+          {authenticated?.user_metadata?.chosen_role === "business" && (
+            <button
+              onClick={() => navigate("account")}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("savedresumes") ? "#000" : "#666",
+                fontWeight: pathname.includes("savedresumes") ? "600" : "400",
+              }}
+            >
+              Manage Subscription
+            </button>
+          )}
           {/* temporary disabled until we have more users */}
           {/* {authenticated?.user_metadata?.chosen_role === "business" && (
             <button

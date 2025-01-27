@@ -29,7 +29,7 @@ export const useUniversitySearch = (query: string, country?: string) => {
           .toLowerCase()
           .split(" ")
           .filter((term) => term.length > 0);
-        const baseUrl = "http://universities.hipolabs.com/search";
+        const baseUrl = "https://universities.hipolabs.com/search";
 
         // Search for each term individually
         const searchPromises = searchTerms.map((term) => {
@@ -48,30 +48,22 @@ export const useUniversitySearch = (query: string, country?: string) => {
 
         const results = await Promise.all(searchPromises);
 
-        // Combine and filter results
-        const allUniversities = results.flat();
+        // Combine and deduplicate results
+        const combinedResults = results.flat();
         const uniqueUniversities = Array.from(
-          new Set(allUniversities.map((uni) => uni.name))
-        )
-          .map((name) => allUniversities.find((uni) => uni.name === name))
-          .filter((uni): uni is University => uni !== undefined)
-          .filter((uni) => {
-            const uniName = uni.name.toLowerCase();
-            return searchTerms.every((term) => uniName.includes(term));
-          });
+          new Map(combinedResults.map((uni) => [uni.name, uni])).values()
+        );
 
         setUniversities(uniqueUniversities);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        setUniversities([]);
+        setError("Failed to fetch universities");
+        console.error("Error fetching universities:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    const debounceTimeout = setTimeout(fetchUniversities, 300);
-
-    return () => clearTimeout(debounceTimeout);
+    fetchUniversities();
   }, [query, country]);
 
   return { universities, loading, error };
