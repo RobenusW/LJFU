@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, IconButton, Typography } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth.ts";
 import { supabase } from "../../Account/supabase";
 import { Business } from "./businessInterface";
 import { Database } from "../Interfaces-types/database.types";

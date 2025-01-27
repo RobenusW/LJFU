@@ -108,7 +108,7 @@ const Footer = () => {
         >
           Have questions? Contact us at{" "}
           <Link href="mailto:support@letjobsfindyou.com">
-            letjobsfindyou@gmail.com
+            support@letjobsfindyou.com
           </Link>
         </Typography>
 

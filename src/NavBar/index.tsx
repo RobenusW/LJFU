@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { supabase } from "../Account/supabase";
+import { useAuth } from "../hooks/useAuth.ts";
+import { supabase } from "../Account/supabase.ts";
 
 export default function NavBar() {
   const { pathname } = useLocation();
@@ -76,6 +76,34 @@ export default function NavBar() {
               How It Works
             </button>
           )}
+
+          {/* Pricing button */}
+          {pathname.includes("business") && (
+            <button
+              onClick={() => {
+                const element = document.getElementById("pricing");
+                if (element) {
+                  const headerOffset = 100; // Adjust this value based on your navbar height
+                  const elementPosition = element.getBoundingClientRect().top;
+                  const offsetPosition =
+                    elementPosition + window.pageYOffset - headerOffset;
+                  window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth",
+                  });
+                }
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 12px",
+                color: pathname.includes("pricing") ? "#000" : "#666",
+                fontWeight: pathname.includes("pricing") ? "600" : "400",
+              }}
+            >
+              Pricing
+            </button>
+          )}
           {/* button for faqs */}
           {pathname.includes("home") && (
             <button
@@ -103,7 +131,6 @@ export default function NavBar() {
               FAQs
             </button>
           )}
-
           {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
               onClick={() => {
@@ -138,7 +165,6 @@ export default function NavBar() {
               Your Profile
             </button>
           )} */}
-
           {authenticated?.user_metadata.chosen_role === "talent" && (
             <button
               onClick={() => navigate(`/talent/editor`)}
@@ -153,7 +179,6 @@ export default function NavBar() {
               Editor
             </button>
           )}
-
           {authenticated?.user_metadata?.chosen_role === "talent" && (
             <button
               onClick={() => navigate("/resources")}

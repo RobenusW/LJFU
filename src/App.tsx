@@ -1,14 +1,14 @@
-import Home from "./Home";
+import Home from "./Home/index.tsx";
 
 import { Route, Routes, Navigate } from "react-router-dom";
-import Business from "./Account/Business";
-import Talent from "./Account/Talent";
-import AuthScreen from "./Account/AuthScreen";
-import { AuthProvider } from "./AuthContext";
-import ProtectedRouteToResumes from "./Account/ProtectedRoutes/ProtectedRouteToResumes";
-import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin";
-import Initiated from "./Account/Initiated";
-import Resources from "./Account/Talent/Resources";
+import Business from "./Account/Business/index.tsx";
+import Talent from "./Account/Talent/index.tsx";
+import AuthScreen from "./Account/AuthScreen.tsx";
+import { AuthProvider } from "./AuthContext.tsx";
+import ProtectedRouteToResumes from "./Account/ProtectedRoutes/ProtectedRouteToResumes.tsx";
+import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin.tsx";
+import Initiated from "./Account/Initiated.tsx";
+import Resources from "./Account/Talent/Resources.tsx";
 
 export default function App() {
   return (

@@ -1,8 +1,9 @@
-import NavBar from "../NavBar";
+import NavBar from "../NavBar/index.tsx";
 import "./index.css";
-import FAQ from "./FAQ";
-import Footer from "./Footer";
-import LogoCarousel from "./LogoCarousel";
+import FAQ from "./FAQ.tsx";
+import Footer from "./Footer.tsx";
+import Pricing from "./Pricing.tsx";
+import LogoCarousel from "./LogoCarousel.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -260,20 +261,12 @@ export default function Home() {
                 `need for large recruiting teams or expensive agencies.`
               : "Traditional job seeking is broken. You should not have to apply to hundreds of jobs, write meaningless cover letters, and wait for weeks to hear back. We hear you."}
           </p>
-
-          <button
-            className="primary-button"
-            style={{
-              background: "#000",
-              color: "#fff",
-              padding: "12px 32px",
-              borderRadius: "8px",
-              fontSize: "18px",
-            }}
-          >
-            See Pricing
-          </button>
         </section>
+        {userType === "business" && (
+          <section id="pricing">
+            <Pricing />
+          </section>
+        )}
       </div>
       {/* FAQ Section */}
       <div id="faq">

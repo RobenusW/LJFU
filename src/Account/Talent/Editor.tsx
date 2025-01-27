@@ -19,7 +19,6 @@ import {
 import { Grid2 as Grid } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { Unstable_NumberInput as NumberInput } from "@mui/base/Unstable_NumberInput";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { useNavigate } from "react-router-dom";
@@ -456,26 +455,21 @@ export default function ResumeEditor() {
                     <Controller
                       name="relocate"
                       control={control}
-                      rules={{ required: "Relocation question is necessary" }}
-                      render={({ field }) => (
+                      rules={{
+                        required: "Relocation question is necessary",
+                      }}
+                      render={({ field, fieldState }) => (
                         <TextField
                           select
                           label="Willing to Relocate?"
                           fullWidth
-                          {...field}
                           required
-                          error={!!errors.relocate}
-                          helperText={
-                            errors.relocate &&
-                            "Relocation question is necessary"
-                          }
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message}
+                          {...field}
                         >
-                          <MenuItem key="Yes" value={"true"}>
-                            Yes
-                          </MenuItem>
-                          <MenuItem key="No" value={"false"}>
-                            No
-                          </MenuItem>
+                          <MenuItem value="true">Yes</MenuItem>
+                          <MenuItem value="false">No</MenuItem>
                         </TextField>
                       )}
                     />
@@ -485,27 +479,29 @@ export default function ResumeEditor() {
                     <Controller
                       name="years_of_experience"
                       control={control}
-                      rules={{
-                        required: "Years of experience is required",
-                      }}
+                      rules={{ required: "Years of experience is necessary" }}
                       render={({ field }) => (
-                        <NumberInput
+                        <TextField
+                          select
+                          label="Years of Experience"
+                          fullWidth
                           {...field}
+                          required
                           error={!!errors.years_of_experience}
-                          id="years_of_experience"
-                          aria-label="Years of Relevant Experience"
-                          min={0}
-                          max={100}
-                          step={1}
-                          style={{
-                            width: "100%",
-                            padding: "16.5px 14px",
-                            borderRadius: "4px",
-                            border: errors.years_of_experience
-                              ? "1px solid red"
-                              : "1px solid #c4c4c4",
-                          }}
-                        />
+                          helperText={
+                            errors.years_of_experience &&
+                            "Years of experience is necessary"
+                          }
+                        >
+                          <MenuItem key="0" value={0}>
+                            Less than 1 year
+                          </MenuItem>
+                          {[...Array(60).keys()].map((year) => (
+                            <MenuItem key={year + 1} value={year + 1}>
+                              {year + 1}
+                            </MenuItem>
+                          ))}
+                        </TextField>
                       )}
                     />
                   </Grid>
@@ -616,6 +612,8 @@ export default function ResumeEditor() {
 
                 {/* Add Language Button */}
                 <Button
+                  variant="contained"
+                  component="span"
                   startIcon={<AddCircleOutlineIcon />}
                   onClick={() =>
                     appendLanguage({
@@ -733,6 +731,8 @@ export default function ResumeEditor() {
 
                 {/* Add Technology Button */}
                 <Button
+                  variant="contained"
+                  component="span"
                   startIcon={<AddCircleOutlineIcon />}
                   onClick={() =>
                     appendTechnology({

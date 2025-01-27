@@ -54,13 +54,14 @@ export default function Home() {
       answer:
         "Prosepctive talent upload their resumes and we give you access to their resumes",
     },
-
-    {
-      question: "How much does LetJobsFindYou cost?",
-      answer: location.pathname.includes("business")
-        ? "$49 per month for businesses, 30-day money back guarantee, no questions asked."
-        : "Free. No cost for talent.",
-    },
+    ...(location.pathname.includes("talent")
+      ? [
+          {
+            question: "How much does LetJobsFindYou cost?",
+            answer: "It's free for talent. ",
+          },
+        ]
+      : []),
 
     {
       question: "How do I get started?",

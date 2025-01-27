@@ -1,15 +1,23 @@
 import { useState } from "react";
 import NavBar from "../NavBar";
 import { useNavigate } from "react-router-dom";
+import { SubscriptionPlans } from "./Business/subscriptionPlans";
+import { supabase } from "../Account/supabase";
 
 export default function Initiated() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
-  const nextPage = () => {
+  const nextPage = async () => {
     if (role === "talent") {
       navigate(`/talent/editor`, { replace: true });
     } else if (role === "business") {
-      navigate(`/business/createprofile`, { replace: true });
+      const { data } = await supabase.auth.getSession();
+
+      const link =
+        SubscriptionPlans[0].link +
+        "?prefilled_email=" +
+        data.session?.user?.email;
+      window.open(link, "_blank");
     }
   };
 
