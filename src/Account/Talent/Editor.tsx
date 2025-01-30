@@ -454,33 +454,14 @@ export default function ResumeEditor() {
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Education
-                      </Typography>
-                      {/* Universities */}
-
-                      <Box sx={{ mb: 1 }}>
-                        <TextField
-                          select
-                          fullWidth
-                          label="Country"
-                          value={selectedCountry}
-                          onChange={(e) => {
-                            setSelectedCountry(e.target.value);
-                          }}
-                        >
-                          {countries.map((country) => (
-                            <MenuItem key={country} value={country}>
-                              {country}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                      </Box>
-
-                      <Box>
-                        {fields.map((field, index) => (
-                          <Box key={field.id} sx={{ mb: 2 }}>
-                            <Box sx={{ mb: 1 }}>
+                      {fields.map((field, index) => (
+                        <Box key={field.id} sx={{ mb: 2 }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            gap: 2,
+                            mb: 1 
+                          }}>
+                            <Box sx={{ flex: 1 }}>
                               <Controller
                                 name={`education.${index}.university`}
                                 control={control}
@@ -508,69 +489,78 @@ export default function ResumeEditor() {
                                 )}
                               />
                             </Box>
-
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                              }}
-                            >
-                              <Button
-                                onClick={() => remove(index)}
-                                color="error"
-                                startIcon={<RemoveCircleOutlineIcon />}
-                                size="small"
-                              >
-                                Remove University
-                              </Button>
-                            </Box>
-                          </Box>
-                        ))}
-
-                        {/* University Suggestions */}
-                        {universities.length > 0 && universityQuery && (
-                          <Paper
-                            sx={{
-                              mt: 1,
-                              maxHeight: 200,
-                              overflowY: "auto",
-                              position: "absolute",
-                              width: "calc(100% - 32px)",
-                              zIndex: 1000,
-                            }}
-                          >
-                            {universities.map((uni, index) => (
-                              <MenuItem
-                                key={index}
-                                onClick={() => {
-                                  const currentIndex = fields.length - 1;
-                                  if (currentIndex >= 0) {
-                                    setValue(
-                                      `education.${currentIndex}.university`,
-                                      uni.name
-                                    );
-                                    setSelectedCountry(uni.country);
-                                  }
-                                  setUniversityQuery("");
+                            <Box sx={{ flex: 1 }}>
+                              <TextField
+                                select
+                                fullWidth
+                                label="Country"
+                                value={selectedCountry}
+                                onChange={(e) => {
+                                  setSelectedCountry(e.target.value);
                                 }}
                               >
-                                {uni.name} - {uni.country}
-                              </MenuItem>
-                            ))}
-                          </Paper>
-                        )}
-
-                        {/* Add University Button */}
-                        <Button
-                          variant="contained"
-                          component="span"
-                          startIcon={<AddCircleOutlineIcon />}
-                          onClick={() => append({ university: "" })}
-                          sx={{ mt: 2 }}
+                                {countries.map((country) => (
+                                  <MenuItem key={country} value={country}>
+                                    {country}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                            <Button
+                              onClick={() => remove(index)}
+                              color="error"
+                              startIcon={<RemoveCircleOutlineIcon />}
+                              size="small"
+                            >
+                              Remove University
+                            </Button>
+                          </Box>
+                        </Box>
+                      ))}
+                      {/* University Suggestions */}
+                      {universities.length > 0 && universityQuery && (
+                        <Paper
+                          sx={{
+                            mt: 1,
+                            maxHeight: 200,
+                            overflowY: "auto",
+                            position: "absolute",
+                            width: "calc(100% - 32px)",
+                            zIndex: 1000,
+                          }}
                         >
-                          Add University
-                        </Button>
-                      </Box>
+                          {universities.map((uni, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => {
+                                const currentIndex = fields.length - 1;
+                                if (currentIndex >= 0) {
+                                  setValue(
+                                    `education.${currentIndex}.university`,
+                                    uni.name
+                                  );
+                                  setSelectedCountry(uni.country);
+                                }
+                                setUniversityQuery("");
+                              }}
+                            >
+                              {uni.name} - {uni.country}
+                            </MenuItem>
+                          ))}
+                        </Paper>
+                      )}
+                      {/* Add University Button */}
+                      <Button
+                        variant="contained"
+                        component="span"
+                        startIcon={<AddCircleOutlineIcon />}
+                        onClick={() => append({ university: "" })}
+                        sx={{ mt: 2 }}
+                      >
+                        Add University
+                      </Button>
                     </Box>
                   </Grid>
                 </Grid>
@@ -678,7 +668,6 @@ export default function ResumeEditor() {
                     </IconButton>
                   </Box>
                 ))}
-
                 {/* Add Language Button */}
                 <Button
                   variant="contained"
@@ -797,7 +786,6 @@ export default function ResumeEditor() {
                     </IconButton>
                   </Box>
                 ))}
-
                 {/* Add Technology Button */}
                 <Button
                   variant="contained"

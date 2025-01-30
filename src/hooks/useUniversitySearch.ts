@@ -29,7 +29,7 @@ export const useUniversitySearch = (query: string, country?: string) => {
           .toLowerCase()
           .split(" ")
           .filter((term) => term.length > 0);
-        const baseUrl = "https://universities.hipolabs.com/search";
+        const baseUrl = "http://universities.hipolabs.com/search";
 
         // Search for each term individually
         const searchPromises = searchTerms.map((term) => {
