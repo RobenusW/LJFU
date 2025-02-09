@@ -65,7 +65,7 @@ export default function Home() {
           }}
         >
           {userType === "business"
-            ? "Get unparalleled access to thousands of top-tier candidates instantly."
+            ? "Get unparalleled access to thousands of top-tier candidates instantly. (Coming Soon!)"
             : "One Resume. No Cover Letters. We promise."}
         </p>
 
