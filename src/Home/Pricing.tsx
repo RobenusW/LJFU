@@ -54,11 +54,11 @@ export default function Pricing() {
               marginBottom: "16px",
             }}
           >
-            <span style={{ fontSize: "24px" }}>$</span>600
+            <span style={{ fontSize: "24px" }}>$</span>30
             <span
               style={{ fontSize: "16px", fontWeight: "normal", color: "#666" }}
             >
-              /year
+              /month
             </span>
           </div>
 
