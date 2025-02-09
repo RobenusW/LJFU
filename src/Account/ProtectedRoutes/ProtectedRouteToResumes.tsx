@@ -15,7 +15,7 @@ export default function ProtectedRouteToResumes() {
   }
   // else if talent go to resources and business go to res
   else if (user.user_metadata?.chosen_role === "talent")
-    return <Navigate to="/resources" replace />;
+    return <Navigate to="/talent/editor" replace />;
   else if (user.user_metadata?.chosen_role === "business")
     return <Navigate to="/business/resumes" replace />;
 

@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsInitialSession(false);
 
         if (session?.user?.user_metadata?.chosen_role === "talent") {
-          navigate("/resources"); // Navigate to dashboard
+          navigate("talent/editor"); // Navigate to dashboard
         } else if (session?.user?.user_metadata?.chosen_role === "business") {
           navigate("/business/resumes"); // Navigate to dashboard
         } else {

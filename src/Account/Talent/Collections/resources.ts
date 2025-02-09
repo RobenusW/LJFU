@@ -145,7 +145,7 @@ export const resources = [
   },
   {
     title: "Magic UI",
-    link: "https://magic.com/ai",
+    link: "https://magicui.design",
     description:
       "Provides AI-powered tools and services to enhance applications with features like authentication, chatbots, and data processing.",
   },
