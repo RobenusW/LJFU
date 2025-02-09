@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
+import { University } from "../Account/Talent/Interfaces/UniversityInterface";
 
-interface University {
-  name: string;
-  country: string;
-  alpha_two_code: string;
-  web_pages: string[];
-  domains: string[];
-}
+const Northeastern: University = {
+  name: "Northeastern University",
+  country: "United States",
+  alpha_two_code: "US",
+  web_pages: ["https://www.neu.edu/"],
+  domains: ["neu.edu"],
+};
+const allowedCountries = ["United States"];
 
-export const useUniversitySearch = (query: string, country?: string) => {
+export const useUniversitySearch = (query: string) => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,37 +26,22 @@ export const useUniversitySearch = (query: string, country?: string) => {
       setError(null);
 
       try {
-        // Split search terms and create individual searches
-        const searchTerms = query
-          .toLowerCase()
-          .split(" ")
-          .filter((term) => term.length > 0);
         const baseUrl = "http://universities.hipolabs.com/search";
 
-        // Search for each term individually
-        const searchPromises = searchTerms.map((term) => {
-          const params = new URLSearchParams({
-            name: term,
-          });
-
-          if (country) {
-            params.append("country", country);
-          }
-
-          return fetch(`${baseUrl}?${params.toString()}`).then((res) =>
-            res.json()
-          );
+        const params = new URLSearchParams({
+          name: query.toLowerCase(),
         });
 
-        const results = await Promise.all(searchPromises);
+        const response = await fetch(`${baseUrl}?${params.toString()}`);
 
-        // Combine and deduplicate results
-        const combinedResults = results.flat();
-        const uniqueUniversities = Array.from(
-          new Map(combinedResults.map((uni) => [uni.name, uni])).values()
+        const data = await response.json();
+
+        // Filter by allowed countries
+        const filteredUniversities = data.filter((uni: University) =>
+          allowedCountries.includes(uni.country)
         );
 
-        setUniversities(uniqueUniversities);
+        setUniversities([...filteredUniversities, Northeastern]);
       } catch (err) {
         setError("Failed to fetch universities");
         console.error("Error fetching universities:", err);
@@ -64,7 +51,7 @@ export const useUniversitySearch = (query: string, country?: string) => {
     };
 
     fetchUniversities();
-  }, [query, country]);
+  }, [query]);
 
   return { universities, loading, error };
 };

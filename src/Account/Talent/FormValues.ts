@@ -1,11 +1,9 @@
 import { Database } from "../Interfaces-types/database.types";
-import { Education } from "../Interfaces-types/database.types";
 
 export interface ResumeFormValues {
   first_name: string;
   last_name: string;
-  university: string;
-  education: Education[];
+  universities: Database["public"]["CompositeTypes"]["universities"][];
   position: string[];
   metro_area: string;
   relocate: boolean;

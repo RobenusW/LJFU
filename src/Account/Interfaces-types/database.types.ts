@@ -6,10 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Education {
-  university: string;
-}
-
 export type Database = {
   public: {
     Tables: {
@@ -48,7 +44,7 @@ export type Database = {
           relocate: boolean
           resume_pdf: string
           technologies: Database["public"]["CompositeTypes"]["skill_obj"][]
-          education: Education[]
+          universities: Database["public"]["CompositeTypes"]["universities"][]
           updated_at: string | null
           user_id: string
           years_of_experience: number
@@ -63,7 +59,7 @@ export type Database = {
           relocate?: boolean
           resume_pdf: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]
-          education?: Education[]
+          universities: Database["public"]["CompositeTypes"]["universities"][]
           updated_at?: string | null
           user_id: string
           years_of_experience?: number
@@ -78,7 +74,7 @@ export type Database = {
           relocate?: boolean
           resume_pdf?: string
           technologies?: Database["public"]["CompositeTypes"]["skill_obj"][]
-          education?: Education[]
+          universities?: Database["public"]["CompositeTypes"]["universities"][]
           updated_at?: string | null
           user_id?: string
           years_of_experience?: number
@@ -104,6 +100,9 @@ export type Database = {
       skill_obj: {
         skill: string | null
         level: string | null
+      }
+      universities: {
+        universityname: string | null
       }
     }
   }

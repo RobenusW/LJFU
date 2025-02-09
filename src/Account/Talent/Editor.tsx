@@ -30,9 +30,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../supabase";
 import { ResumeFormValues } from "./FormValues";
 import { metroAreas } from "./Collections/MetroAreas";
-import { useUniversitySearch } from "../../hooks/useUniversitySearch";
-import { countries } from "./Collections/Countries";
 import { programmingLanguages } from "./Collections/ProgrammingLanguages";
+import { useUniversitySearch } from "../../hooks/useUniversitySearch";
 import { technologies } from "./Collections/Technologies";
 export default function ResumeEditor() {
   const navigate = useNavigate();
@@ -40,6 +39,9 @@ export default function ResumeEditor() {
   const [existingResume, setExistingResume] = useState<
     Database["public"]["Tables"]["resumes"]["Row"] | null
   >(null);
+  const [universityQuery, setUniversityQuery] = useState("");
+  const { universities } = useUniversitySearch(universityQuery);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const [expanded, setExpanded] = useState<string | false>("generalInfo");
 
@@ -47,13 +49,6 @@ export default function ResumeEditor() {
     (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
-
-  const [universityQuery, setUniversityQuery] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const { universities, error } = useUniversitySearch(
-    universityQuery,
-    selectedCountry
-  );
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -117,7 +112,7 @@ export default function ResumeEditor() {
     defaultValues: {
       first_name: "",
       last_name: "",
-      education: [],
+      universities: [],
       position: [],
       metro_area: "",
       years_of_experience: 0,
@@ -145,11 +140,13 @@ export default function ResumeEditor() {
         if (error) {
           throw new Error("Error fetching resume");
         }
+
         const resume = data[0];
+
         reset({
           first_name: resume.first_name,
           last_name: resume.last_name,
-          education: resume.education || [],
+          universities: resume.universities,
           position: resume.position,
           metro_area: resume.metro_area,
           years_of_experience: resume.years_of_experience,
@@ -163,6 +160,10 @@ export default function ResumeEditor() {
     fetchResume();
   }, [reset, user]);
 
+  function removeSpecialCharacters(str: string) {
+    return str.replace(/[^a-zA-Z, ]/g, "");
+  }
+
   const onSubmit = async (data: ResumeFormValues) => {
     try {
       if (!user) {
@@ -170,6 +171,7 @@ export default function ResumeEditor() {
       }
 
       let pdfUrl = data.resume_pdf;
+
       if (pdfFile) {
         try {
           pdfUrl = await uploadPdfToStorage(pdfFile);
@@ -179,8 +181,13 @@ export default function ResumeEditor() {
         }
       }
 
+      data.universities = data.universities.map((uni) => ({
+        universityname: removeSpecialCharacters(uni.universityname!),
+      }));
+
       const payload = {
         ...data,
+        universities: data.universities,
         relocate: data.relocate,
         user_id: user.id,
         resume_pdf: pdfUrl,
@@ -258,6 +265,12 @@ export default function ResumeEditor() {
   };
 
   const {
+    fields: educationFields,
+    append: appendEducation,
+    remove: removeEducation,
+  } = useFieldArray({ control, name: "universities" });
+
+  const {
     fields: technologiesFields,
     append: appendTechnology,
     remove: removeTechnology,
@@ -268,11 +281,6 @@ export default function ResumeEditor() {
     append: appendLanguage,
     remove: removeLanguage,
   } = useFieldArray({ control, name: "languages" });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "education",
-  });
 
   return (
     <>
@@ -291,6 +299,7 @@ export default function ResumeEditor() {
           >
             Resume Editor
           </Typography>
+
           <form onSubmit={handleFormSubmit} noValidate>
             {/* General Info */}
             <Accordion
@@ -388,9 +397,6 @@ export default function ResumeEditor() {
                     <Controller
                       name="relocate"
                       control={control}
-                      rules={{
-                        required: "Relocation question is necessary",
-                      }}
                       render={({ field, fieldState }) => (
                         <TextField
                           select
@@ -454,62 +460,75 @@ export default function ResumeEditor() {
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box sx={{ mb: 2 }}>
-                      {fields.map((field, index) => (
+                      {educationFields.map((field, index) => (
                         <Box key={field.id} sx={{ mb: 2 }}>
-                          <Box sx={{ 
-                            display: 'flex', 
-                            gap: 2,
-                            mb: 1 
-                          }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              mb: 1,
+                            }}
+                          >
                             <Box sx={{ flex: 1 }}>
                               <Controller
-                                name={`education.${index}.university`}
+                                name={`universities.${index}.universityname`}
                                 control={control}
                                 rules={{ required: "University is required" }}
-                                render={({ field: { onChange, value } }) => (
+                                render={({
+                                  field: { onChange, value },
+                                  fieldState: { error },
+                                }) => (
                                   <TextField
                                     fullWidth
                                     label="University"
-                                    value={value}
+                                    value={value || ""}
                                     onChange={(e) => {
                                       onChange(e.target.value);
                                       setUniversityQuery(e.target.value);
+                                      setActiveIndex(index);
                                     }}
-                                    error={
-                                      !!errors.education?.[index]?.university ||
-                                      !!error
-                                    }
-                                    helperText={
-                                      errors.education?.[index]?.university
-                                        ?.message ||
-                                      error ||
-                                      ""
-                                    }
+                                    error={!!error}
+                                    helperText={error?.message}
                                   />
                                 )}
                               />
                             </Box>
-                            <Box sx={{ flex: 1 }}>
-                              <TextField
-                                select
-                                fullWidth
-                                label="Country"
-                                value={selectedCountry}
-                                onChange={(e) => {
-                                  setSelectedCountry(e.target.value);
+                          </Box>
+                          {/* University Suggestions */}
+                          {activeIndex === index &&
+                            universities.length > 0 &&
+                            universityQuery && (
+                              <Paper
+                                sx={{
+                                  mt: 1,
+                                  maxHeight: 200,
+                                  overflowY: "auto",
+                                  position: "absolute",
+                                  width: "calc(100% - 32px)",
+                                  zIndex: 1000,
                                 }}
                               >
-                                {countries.map((country) => (
-                                  <MenuItem key={country} value={country}>
-                                    {country}
+                                {universities.map((uni, index) => (
+                                  <MenuItem
+                                    key={index}
+                                    onClick={() => {
+                                      setValue(
+                                        `universities.${activeIndex}.universityname`,
+                                        uni.name
+                                      );
+                                      setUniversityQuery("");
+                                    }}
+                                  >
+                                    {uni.name} - {uni.country}
                                   </MenuItem>
                                 ))}
-                              </TextField>
-                            </Box>
-                          </Box>
-                          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                              </Paper>
+                            )}
+                          <Box
+                            sx={{ display: "flex", justifyContent: "flex-end" }}
+                          >
                             <Button
-                              onClick={() => remove(index)}
+                              onClick={() => removeEducation(index)}
                               color="error"
                               startIcon={<RemoveCircleOutlineIcon />}
                               size="small"
@@ -519,44 +538,13 @@ export default function ResumeEditor() {
                           </Box>
                         </Box>
                       ))}
-                      {/* University Suggestions */}
-                      {universities.length > 0 && universityQuery && (
-                        <Paper
-                          sx={{
-                            mt: 1,
-                            maxHeight: 200,
-                            overflowY: "auto",
-                            position: "absolute",
-                            width: "calc(100% - 32px)",
-                            zIndex: 1000,
-                          }}
-                        >
-                          {universities.map((uni, index) => (
-                            <MenuItem
-                              key={index}
-                              onClick={() => {
-                                const currentIndex = fields.length - 1;
-                                if (currentIndex >= 0) {
-                                  setValue(
-                                    `education.${currentIndex}.university`,
-                                    uni.name
-                                  );
-                                  setSelectedCountry(uni.country);
-                                }
-                                setUniversityQuery("");
-                              }}
-                            >
-                              {uni.name} - {uni.country}
-                            </MenuItem>
-                          ))}
-                        </Paper>
-                      )}
+
                       {/* Add University Button */}
                       <Button
                         variant="contained"
                         component="span"
                         startIcon={<AddCircleOutlineIcon />}
-                        onClick={() => append({ university: "" })}
+                        onClick={() => appendEducation({ universityname: "" })}
                         sx={{ mt: 2 }}
                       >
                         Add University

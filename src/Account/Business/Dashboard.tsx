@@ -92,7 +92,7 @@ export default function Dashboard() {
       };
 
       data?.forEach((resume) => {
-        if (resume.university) options.universities.add(resume.university);
+        if (resume.universities) options.universities =(resume.universities);
         resume.position.forEach((pos) => options.positions.add(pos));
         if (resume.metro_area) options.locations.add(resume.metro_area);
         resume.technologies.forEach((tech) => {

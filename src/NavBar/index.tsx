@@ -78,7 +78,7 @@ export default function NavBar() {
           )}
 
           {/* Pricing button */}
-          {pathname.includes("business") && (
+          {pathname.includes("business") && pathname.includes("home") && (
             <button
               onClick={() => {
                 const element = document.getElementById("pricing");
@@ -151,6 +151,8 @@ export default function NavBar() {
             </button>
           )}
 
+          {/* temporary disabled until for project part of deployment*/}
+          {/*}
           {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
               onClick={() => navigate("account")}
@@ -164,7 +166,8 @@ export default function NavBar() {
             >
               Manage Subscription
             </button>
-          )}
+          )} 
+          */}
           {/* temporary disabled until we have more users */}
           {/* {authenticated?.user_metadata?.chosen_role === "business" && (
             <button
