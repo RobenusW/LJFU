@@ -55,7 +55,7 @@ export const resources = [
   },
   {
     title: "Harvard Resume Template",
-    link: "https://resume-template.harvard.edu/",
+    link: "https://careerservices.fas.harvard.edu/resources/harvard-college-resume-example-tech/",
     description:
       "A professional resume template provided by Harvard to help students and graduates create effective and polished resumes for job applications.",
   },

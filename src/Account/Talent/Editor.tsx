@@ -219,7 +219,7 @@ export default function ResumeEditor() {
       }
 
       // Navigate to the dashboard if all operations are successful
-      navigate(`/resources`, { replace: true });
+      navigate(`/success`, { replace: true });
     } catch (error: Error | unknown) {
       console.error("Error during resume submission:", error);
       alert(

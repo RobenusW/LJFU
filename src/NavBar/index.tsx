@@ -49,7 +49,7 @@ export default function NavBar() {
         >
           LetJobsFindYou.com
         </button>
-        
+
         <div style={{ display: "flex", gap: "24px" }}>
           {!authenticated && pathname.includes("home") && (
             <button

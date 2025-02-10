@@ -17,8 +17,7 @@ code {
     monospace;
 }
 
-/* Override Supabase Auth component styles */
-.sbui-btn {
+Override Supabase Auth component styles .sbui-btn {
   background-color: #000 !important;
   color: #fff !important;
   border: 1px solid #000 !important;
@@ -45,6 +44,22 @@ code {
 
 .sbui-message-text {
   color: #333 !important;
+}
+
+.black-button {
+  background: #000 !important;
+  color: #fff !important;
+  padding: 12px 32px !important;
+  border-radius: 8px !important;
+  font-size: 18px !important;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: #666;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 40px;
 }
 
 body {

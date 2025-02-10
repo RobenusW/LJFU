@@ -6,6 +6,7 @@ import Pricing from "./Pricing.tsx";
 import LogoCarousel from "./LogoCarousel.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import "../App.css";
 
 export default function Home() {
   const { pathname } = useLocation();
@@ -54,31 +55,15 @@ export default function Home() {
             : "Let Jobs Find You."}
         </h1>
 
-        <p
-          className="subtitle"
-          style={{
-            fontSize: "20px",
-            color: "#666",
-            textAlign: "center",
-            maxWidth: "800px",
-            margin: "0 auto 40px",
-          }}
-        >
+        <p className="subtitle">
           {userType === "business"
             ? "Get unparalleled access to thousands of top-tier candidates instantly. (Coming Soon!)"
             : "One Resume. No Cover Letters. We promise."}
         </p>
 
-        <div className="cta-buttons" style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "center" }}>
           <button
-            className="primary-button"
-            style={{
-              background: "#000",
-              color: "#fff",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              marginRight: "16px",
-            }}
+            className="black-button"
             onClick={() => {
               navigate("/signup");
             }}

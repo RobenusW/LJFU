@@ -1,4 +1,5 @@
 export const programmingLanguages: string[] = [
+  "Assembly",
   "Python",
   "C",
   "Java",
@@ -26,7 +27,6 @@ export const programmingLanguages: string[] = [
   "Lua",
   "Groovy",
   "Haskell",
-  "Assembly Language",
   "Elixir",
   "Clojure",
   "F#",

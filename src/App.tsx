@@ -9,6 +9,7 @@ import ProtectedRouteToResumes from "./Account/ProtectedRoutes/ProtectedRouteToR
 import ProtectedRouteToSignin from "./Account/ProtectedRoutes/ProtectedRouteToSignin.tsx";
 import Initiated from "./Account/Initiated.tsx";
 import Resources from "./Account/Talent/Resources.tsx";
+import Success from "./Account/Talent/Success.tsx";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/talent/*" element={<Talent />} />
         <Route path="/business/*" element={<Business />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/success" element={<Success />} />
       </Routes>
     </AuthProvider>
   );
