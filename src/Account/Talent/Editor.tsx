@@ -14,7 +14,7 @@ import {
   MenuItem,
   Alert,
   AlertTitle,
-  Paper,
+  Autocomplete,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -31,17 +31,14 @@ import { supabase } from "../supabase";
 import { ResumeFormValues } from "./FormValues";
 import { metroAreas } from "./Collections/MetroAreas";
 import { programmingLanguages } from "./Collections/ProgrammingLanguages";
-import { useUniversitySearch } from "../../hooks/useUniversitySearch";
 import { technologies } from "./Collections/Technologies";
+import { UniversitiesList } from "./Collections/Universities";
 export default function ResumeEditor() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [existingResume, setExistingResume] = useState<
     Database["public"]["Tables"]["resumes"]["Row"] | null
   >(null);
-  const [universityQuery, setUniversityQuery] = useState("");
-  const { universities } = useUniversitySearch(universityQuery);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const [expanded, setExpanded] = useState<string | false>("generalInfo");
 
@@ -107,7 +104,6 @@ export default function ResumeEditor() {
     getValues,
     trigger,
     formState: { errors },
-    setValue,
   } = useForm<ResumeFormValues>({
     defaultValues: {
       first_name: "",
@@ -478,63 +474,35 @@ export default function ResumeEditor() {
                                   field: { onChange, value },
                                   fieldState: { error },
                                 }) => (
-                                  <TextField
-                                    fullWidth
-                                    label="University"
-                                    value={value || ""}
-                                    onChange={(e) => {
-                                      onChange(e.target.value);
-                                      setUniversityQuery(e.target.value);
-                                      setActiveIndex(index);
+                                  <Autocomplete
+                                    onChange={(_, item) => {
+                                      onChange(item);
                                     }}
-                                    error={!!error}
-                                    helperText={error?.message}
+                                    disablePortal
+                                    value={value}
+                                    options={UniversitiesList}
+                                    sx={{ width: 300 }}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label="University"
+                                        error={!!error}
+                                        helperText={error?.message}
+                                        required
+                                      />
+                                    )}
                                   />
                                 )}
                               />
-                            </Box>
-                          </Box>
-                          {/* University Suggestions */}
-                          {activeIndex === index &&
-                            universities.length > 0 &&
-                            universityQuery && (
-                              <Paper
-                                sx={{
-                                  mt: 1,
-                                  maxHeight: 200,
-                                  overflowY: "auto",
-                                  position: "absolute",
-                                  width: "calc(100% - 32px)",
-                                  zIndex: 1000,
-                                }}
+                              <Button
+                                onClick={() => removeEducation(index)}
+                                color="error"
+                                startIcon={<RemoveCircleOutlineIcon />}
+                                size="small"
                               >
-                                {universities.map((uni, index) => (
-                                  <MenuItem
-                                    key={index}
-                                    onClick={() => {
-                                      setValue(
-                                        `universities.${activeIndex}.universityname`,
-                                        uni.name
-                                      );
-                                      setUniversityQuery("");
-                                    }}
-                                  >
-                                    {uni.name} - {uni.country}
-                                  </MenuItem>
-                                ))}
-                              </Paper>
-                            )}
-                          <Box
-                            sx={{ display: "flex", justifyContent: "flex-end" }}
-                          >
-                            <Button
-                              onClick={() => removeEducation(index)}
-                              color="error"
-                              startIcon={<RemoveCircleOutlineIcon />}
-                              size="small"
-                            >
-                              Remove University
-                            </Button>
+                                Remove University
+                              </Button>
+                            </Box>
                           </Box>
                         </Box>
                       ))}
