@@ -26,7 +26,7 @@ export const useUniversitySearch = (query: string) => {
       setError(null);
 
       try {
-        const baseUrl = "http://universities.hipolabs.com/search";
+        const baseUrl = "https://universities.hipolabs.com/search";
 
         const params = new URLSearchParams({
           name: query.toLowerCase(),
