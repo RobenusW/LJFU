@@ -12,7 +12,7 @@ const Success = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
+        minHeight: "100dvh",
         gap: "4px",
         textAlign: "center",
       }}
