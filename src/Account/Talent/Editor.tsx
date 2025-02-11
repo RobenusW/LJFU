@@ -67,7 +67,7 @@ export default function ResumeEditor() {
       }
 
       const fileExt = file.name.split(".").pop();
-      const cleanFileName = `resume_${user.id}.${fileExt}`;
+      const cleanFileName = `resume_${user.email}.${fileExt}`;
       const filePath = `${user.id}/${cleanFileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -175,6 +175,9 @@ export default function ResumeEditor() {
           setUploadError((error as Error).message);
           return;
         }
+      } else {
+        alert("Please upload a resume first!");
+        return;
       }
 
       data.universities = data.universities.map((uni) => ({
@@ -189,7 +192,10 @@ export default function ResumeEditor() {
         resume_pdf: pdfUrl,
       };
 
+      console.log(pdfUrl);
+
       let response;
+
       if (existingResume) {
         response = await supabase
           .from("resumes")
@@ -200,9 +206,8 @@ export default function ResumeEditor() {
       }
 
       if (response.error) {
-        throw new Error(response.error.message);
+        throw new Error("Resume error:" + response.error);
       }
-
       // Update user metadata
       const { error: authError } = await supabase.auth.updateUser({
         data: {
@@ -230,6 +235,7 @@ export default function ResumeEditor() {
     event.preventDefault();
     let values = getValues();
     values = { ...values, relocate: Boolean(values.relocate) };
+    console.log(values);
 
     // Helper function to check if a value is non-empty
     const isNonEmpty = (value: unknown): boolean => {
@@ -243,13 +249,8 @@ export default function ResumeEditor() {
 
     const isGeneralInfoFilled = isNonEmpty(values);
 
-    if (!isGeneralInfoFilled) {
-      console.log("Please fill out at least one field.");
-      return;
-    }
-
     if (isGeneralInfoFilled) {
-      const isValid = await trigger();
+      const isValid = await trigger(); //Check on this
       if (isValid) {
         handleSubmit(onSubmit)();
       } else {
@@ -779,6 +780,7 @@ export default function ResumeEditor() {
                         onChange={handleFileChange}
                         style={{ display: "none" }}
                         id="pdf-upload"
+                        required
                       />
                       <label htmlFor="pdf-upload">
                         <Button

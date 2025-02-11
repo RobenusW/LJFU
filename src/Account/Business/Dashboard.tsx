@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   // Filter states
   const [filters, setFilters] = useState({
-    university: "",
+    universities: "",
     position: "",
     metro_area: "",
     relocate: null as boolean | null,
@@ -92,7 +92,11 @@ export default function Dashboard() {
       };
 
       data?.forEach((resume) => {
-        if (resume.universities) options.universities =(resume.universities);
+        resume.universities.forEach((uni) => {
+          if (uni.universityname) {
+            options.universities.add(uni.universityname);
+          }
+        });
         resume.position.forEach((pos) => options.positions.add(pos));
         if (resume.metro_area) options.locations.add(resume.metro_area);
         resume.technologies.forEach((tech) => {
@@ -123,9 +127,9 @@ export default function Dashboard() {
     }
 
     // Only apply university filter if a university is selected
-    if (filters.university) {
-      filtered = filtered.filter(
-        (resume) => resume.university === filters.university
+    if (filters.universities) {
+      filtered = filtered.filter((resume) =>
+        resume.position.includes(filters.position)
       );
     }
 
@@ -175,7 +179,7 @@ export default function Dashboard() {
 
   const ClearFilters = () => {
     setFilters({
-      university: "",
+      universities: "",
       position: "",
       metro_area: "",
       relocate: null,
@@ -249,9 +253,9 @@ export default function Dashboard() {
                 <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <Autocomplete
                     options={Array.from(availableOptions.universities)}
-                    value={filters.university}
+                    value={filters.universities}
                     onChange={(_, newValue) =>
-                      setFilters({ ...filters, university: newValue || "" })
+                      setFilters({ ...filters, universities: newValue || "" })
                     }
                     renderInput={(params) => (
                       <TextField {...params} label="University" fullWidth />
@@ -447,7 +451,7 @@ export default function Dashboard() {
                       {resume.position.join(", ")}
                     </Typography>
                     <Typography variant="body2" gutterBottom>
-                      {resume.university}
+                      {resume.universities.join(", ")}
                     </Typography>
                     <Typography variant="body2" gutterBottom>
                       {resume.metro_area}
