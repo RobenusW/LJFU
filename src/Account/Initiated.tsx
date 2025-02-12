@@ -1,24 +1,28 @@
 import { useState } from "react";
 import NavBar from "../NavBar";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "./supabase";
 
 export default function Initiated() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
-  const nextPage = () => {
+
+  // Not business user until they make a business profile !!!!
+  async function updateUserRole() {
+    const { error } = await supabase.auth.updateUser({
+      data: { chosen_role: "business" },
+    });
+
+    if (error) throw new Error(error.message);
+  }
+
+  const nextPage = async () => {
     if (role === "talent") {
       navigate(`/talent/editor`, { replace: true });
     } else if (role === "business") {
+      await updateUserRole();
       navigate("/business/resumes", { replace: true });
     }
-    //   const { data } = await supabase.auth.getSession();
-
-    //   const link =
-    //     SubscriptionPlans[0].link +
-    //     "?prefilled_email=" +
-    //     data.session?.user?.email;
-    //   window.open(link, "_blank");
-    // }
   };
 
   return (

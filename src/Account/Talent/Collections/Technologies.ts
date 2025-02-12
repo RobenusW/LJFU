@@ -79,14 +79,6 @@ export const technologies: string[] = [
   "SVN",
   "Mercurial",
 
-  // Tools & IDEs
-  "Visual Studio Code",
-  "IntelliJ IDEA",
-  "Eclipse",
-  "PyCharm",
-  "Xcode",
-  "Android Studio",
-
   // Other
   "Linux",
   "Unix",

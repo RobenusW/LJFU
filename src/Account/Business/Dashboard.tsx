@@ -61,6 +61,45 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
+    async function fetchResumes(): Promise<void> {
+      try {
+        const { data, error } = await supabase.from("resumes").select("*");
+
+        if (error) throw error;
+        setResumes(data || []);
+
+        // Update available options
+        const options = {
+          universities: new Set<string>(),
+          positions: new Set<string>(),
+          locations: new Set<string>(),
+          technologies: new Set<string>(),
+          languages: new Set<string>(),
+        };
+
+        data?.forEach((resume) => {
+          resume.universities.forEach((uni) => {
+            if (uni.universityname) {
+              options.universities.add(uni.universityname);
+            }
+          });
+          resume.position.forEach((pos) => options.positions.add(pos));
+          if (resume.metro_area) options.locations.add(resume.metro_area);
+          resume.technologies.forEach((tech) => {
+            if (tech.skill) options.technologies.add(tech.skill);
+          });
+          resume.languages.forEach((lang) => {
+            if (lang.skill) options.languages.add(lang.skill);
+          });
+        });
+
+        setAvailableOptions(options);
+        Promise.resolve("Success");
+      } catch (error) {
+        console.error("Error fetching resumes:", error);
+      }
+    }
+
     fetchResumes();
   }, []);
 
@@ -74,43 +113,6 @@ export default function Dashboard() {
     }
 
     return data.signedUrl;
-  };
-
-  const fetchResumes = async () => {
-    try {
-      const { data, error } = await supabase.from("resumes").select("*");
-      if (error) throw error;
-      setResumes(data || []);
-
-      // Update available options
-      const options = {
-        universities: new Set<string>(),
-        positions: new Set<string>(),
-        locations: new Set<string>(),
-        technologies: new Set<string>(),
-        languages: new Set<string>(),
-      };
-
-      data?.forEach((resume) => {
-        resume.universities.forEach((uni) => {
-          if (uni.universityname) {
-            options.universities.add(uni.universityname);
-          }
-        });
-        resume.position.forEach((pos) => options.positions.add(pos));
-        if (resume.metro_area) options.locations.add(resume.metro_area);
-        resume.technologies.forEach((tech) => {
-          if (tech.skill) options.technologies.add(tech.skill);
-        });
-        resume.languages.forEach((lang) => {
-          if (lang.skill) options.languages.add(lang.skill);
-        });
-      });
-
-      setAvailableOptions(options);
-    } catch (error) {
-      console.error("Error fetching resumes:", error);
-    }
   };
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export default function Dashboard() {
     // Only apply university filter if a university is selected
     if (filters.universities) {
       filtered = filtered.filter((resume) =>
-        resume.position.includes(filters.position)
+        resume.universities.map((uni) => uni.universityname).includes(filters.universities)
       );
     }
 
@@ -451,7 +453,9 @@ export default function Dashboard() {
                       {resume.position.join(", ")}
                     </Typography>
                     <Typography variant="body2" gutterBottom>
-                      {resume.universities.join(", ")}
+                      {resume.universities
+                        .map((uni) => uni.universityname)
+                        .join(", ")}
                     </Typography>
                     <Typography variant="body2" gutterBottom>
                       {resume.metro_area}

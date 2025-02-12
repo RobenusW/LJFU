@@ -67,7 +67,7 @@ export default function ResumeEditor() {
       }
 
       const fileExt = file.name.split(".").pop();
-      const cleanFileName = `resume_${user.email}.${fileExt}`;
+      const cleanFileName = `resume_${user.id}.${fileExt}`;
       const filePath = `${user.id}/${cleanFileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -167,6 +167,7 @@ export default function ResumeEditor() {
       }
 
       let pdfUrl = data.resume_pdf;
+      console.log(existingResume?.resume_pdf);
 
       if (pdfFile) {
         try {
@@ -175,7 +176,7 @@ export default function ResumeEditor() {
           setUploadError((error as Error).message);
           return;
         }
-      } else {
+      } else if (!existingResume?.resume_pdf && !pdfFile) {
         alert("Please upload a resume first!");
         return;
       }
@@ -208,7 +209,7 @@ export default function ResumeEditor() {
       if (response.error) {
         throw new Error("Resume error:" + response.error);
       }
-      // Update user metadata
+      // Update user t
       const { error: authError } = await supabase.auth.updateUser({
         data: {
           chosen_role: "talent",
