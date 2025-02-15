@@ -50,43 +50,74 @@ export default function ResumeEditor() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const uploadPdfToStorage = async (file: File): Promise<string> => {
+  /**
+   * Ensures file is pdf and 2MB or less.
+   * @param file
+   * @returns boolean whether file is valid.
+   */
+  function checkFileValid(file: File): boolean {
     const allowedTypes = ["application/pdf"];
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
     if (!allowedTypes.includes(file.type)) {
       throw new Error("Please upload a PDF file");
-    }
-
-    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-    if (file.size > maxSize) {
+    } else if (file.size > maxSize) {
       throw new Error("File size must be less than 2MB");
+    } else {
+      return true;
     }
+  }
+
+  /**
+   * Creates a filename and file directory for each user. Uses userID as file Directory name and for file suffix.
+   * @param fileName
+   * @returns file path.
+   */
+  function createFilePath(fileName: string): string {
+    const fileExt = fileName.split(".").pop();
+    const cleanFileName = `resume_${user!.id}.${fileExt}`;
+    const filePath = `${user!.id}/${cleanFileName}`;
+    return filePath;
+  }
+
+  /**
+   * Uploads a file to Resumes File Bucket in Supabase
+   * @param filePath
+   * @param file
+   */
+  async function uploadFileToSupabase(
+    filePath: string,
+    file: File
+  ): Promise<void> {
+    const { error: uploadError } = await supabase.storage
+      .from("resumes")
+      .upload(filePath, file, {
+        upsert: true,
+        contentType: "application/pdf",
+      });
+    if (uploadError) {
+      throw new Error(uploadError.message);
+    }
+  }
+
+  /**
+   * Uploads User's to Resume to Supabase Storage and retrieves the resumes's URL.
+   * @param file
+   * @returns resume's URL
+   */
+  async function uploadResumeToStorage(file: File): Promise<string> {
+    checkFileValid(file);
 
     try {
-      if (!user) {
-        throw new Error("User is not logged in to upload resume");
-      }
-
-      const fileExt = file.name.split(".").pop();
-      const cleanFileName = `resume_${user.id}.${fileExt}`;
-      const filePath = `${user.id}/${cleanFileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("resumes")
-        .upload(filePath, file, {
-          upsert: true,
-          contentType: "application/pdf",
-        });
-
-      if (uploadError) {
-        throw new Error(uploadError.message);
-      }
+      const filePath: string = createFilePath(file.name);
+      uploadFileToSupabase(filePath, file);
 
       const { data } = supabase.storage.from("resumes").getPublicUrl(filePath);
       return data.publicUrl;
     } catch (error: Error | unknown) {
       throw new Error(`Error uploading file: ${(error as Error).message}`);
     }
-  };
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -171,7 +202,7 @@ export default function ResumeEditor() {
 
       if (pdfFile) {
         try {
-          pdfUrl = await uploadPdfToStorage(pdfFile);
+          pdfUrl = await uploadResumeToStorage(pdfFile);
         } catch (error) {
           setUploadError((error as Error).message);
           return;

@@ -30,6 +30,7 @@ import { supabase } from "../supabase";
 import NavBar from "../../NavBar";
 import SearchIcon from "@mui/icons-material/Search";
 import { ResumeFormValues } from "../Talent/FormValues";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Dashboard() {
   const [resumes, setResumes] = useState<ResumeFormValues[]>([]);
@@ -39,6 +40,14 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  const ResumeDashboardTheme = createTheme({
+    palette: {
+      primary: {
+        main: "#000000",
+      },
+    },
+  });
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -67,6 +76,7 @@ export default function Dashboard() {
 
         if (error) throw error;
         setResumes(data || []);
+        setResumes((unsortedResumes) => sortResumes(unsortedResumes));
 
         // Update available options
         const options = {
@@ -94,13 +104,13 @@ export default function Dashboard() {
         });
 
         setAvailableOptions(options);
-        Promise.resolve("Success");
+        Promise.resolve(resumes);
       } catch (error) {
         console.error("Error fetching resumes:", error);
       }
     }
 
-    fetchResumes();
+    fetchResumes().then((value) => console.log(value));
   }, []);
 
   const seeResume = async (user_id: string): Promise<string> => {
@@ -131,7 +141,9 @@ export default function Dashboard() {
     // Only apply university filter if a university is selected
     if (filters.universities) {
       filtered = filtered.filter((resume) =>
-        resume.universities.map((uni) => uni.universityname).includes(filters.universities)
+        resume.universities
+          .map((uni) => uni.universityname)
+          .includes(filters.universities)
       );
     }
 
@@ -207,27 +219,44 @@ export default function Dashboard() {
     return results;
   }, [filteredResumes, favorites, showFavoritesOnly]);
 
-  const fetchUserEmail = async (userId: string): Promise<string> => {
+  /**
+   * Fetches user email by their userID to allow mail to features.
+   * @param userId
+   * @returns a promise of an email
+   */
+  async function fetchUserEmail(userId: string): Promise<string> {
     const { data, error } = await supabase.rpc("get_user_email", {
       user_id: userId,
     });
     console.log(data, error);
     if (error) throw error;
     return data;
-  };
+  }
 
-  const ResumeDashboardTheme = createTheme({
-    palette: {
-      primary: {
-        main: "#000000",
-      },
-    },
-  });
+  /**
+   * Sort Resumes based on the amount of technologies and languages combined to promote diligent talents.
+   * @param resumes
+   * @returns the sorted array of resumes by such criteria
+   */
+  function sortResumes(resumes: ResumeFormValues[]): ResumeFormValues[] {
+    function compareResumes(
+      resume1: ResumeFormValues,
+      resume2: ResumeFormValues
+    ) {
+      return -(
+        resume1.technologies.length +
+        resume1.languages.length -
+        (resume2.technologies.length + resume2.languages.length)
+      );
+    }
+
+    return resumes.sort(compareResumes);
+  }
 
   return (
     <ThemeProvider theme={ResumeDashboardTheme}>
       <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
-        <div style={{ marginTop: "80px" }}>
+        <div style={{ marginTop: "10px" }}>
           <NavBar />
         </div>
         <Container maxWidth="xl" sx={{ pt: 10, pb: 4 }}>
@@ -465,33 +494,43 @@ export default function Dashboard() {
                       Experience: {resume.years_of_experience} years
                     </Typography>
 
-                    <Typography variant="subtitle2" gutterBottom>
-                      Technologies:
-                    </Typography>
-                    <Box sx={{ mb: 1 }}>
-                      {resume.technologies.map((tech, index) => (
-                        <Chip
-                          key={index}
-                          label={`${tech.skill} (${tech.level})`}
-                          size="small"
-                          sx={{ mr: 0.5, mb: 0.5 }}
-                        />
-                      ))}
-                    </Box>
+                    {resume.technologies.length > 0 && (
+                      <>
+                        <Typography variant="subtitle2">
+                          Technologies:
+                        </Typography>
+                        <Box sx={{ mb: 1 }}>
+                          <ScrollArea className="h-[100px]">
+                            {resume.technologies.map((tech, index) => (
+                              <Chip
+                                key={index}
+                                label={`${tech.skill} (${tech.level})`}
+                                size="small"
+                                sx={{ mr: 0.5, mb: 0.5 }}
+                              />
+                            ))}
+                          </ScrollArea>
+                        </Box>
+                      </>
+                    )}
 
-                    <Typography variant="subtitle2" gutterBottom>
-                      Languages:
-                    </Typography>
-                    <Box>
-                      {resume.languages.map((lang, index) => (
-                        <Chip
-                          key={index}
-                          label={`${lang.skill} (${lang.level})`}
-                          size="small"
-                          sx={{ mr: 0.5, mb: 0.5 }}
-                        />
-                      ))}
-                    </Box>
+                    {resume.technologies.length > 0 && (
+                      <>
+                        <Typography variant="subtitle2">Languages:</Typography>
+                        <Box>
+                          <ScrollArea className="h-[100px]">
+                            {resume.languages.map((lang, index) => (
+                              <Chip
+                                key={index}
+                                label={`${lang.skill} (${lang.level})`}
+                                size="small"
+                                sx={{ mr: 0.5, mb: 0.5 }}
+                              />
+                            ))}
+                          </ScrollArea>
+                        </Box>
+                      </>
+                    )}
                   </CardContent>
                   <CardActions sx={{ justifyContent: "space-between" }}>
                     <Button

@@ -36,6 +36,8 @@ export const technologies: string[] = [
   "Microsoft SQL Server",
   "Cassandra",
   "DynamoDB",
+  "Supabase",
+  "Firebase",
 
   // Cloud & DevOps
   "AWS",

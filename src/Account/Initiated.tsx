@@ -61,8 +61,8 @@ export default function Initiated() {
               <div className="form-check">
                 <input
                   className="form-check-input"
-                  type="radio"
                   disabled
+                  type="radio"
                   name="role"
                   id="roleBusiness"
                   value="business"

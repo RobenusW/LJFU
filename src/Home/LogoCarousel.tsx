@@ -23,7 +23,7 @@ const LogoCarousel = () => {
           marginBottom: "60px",
         }}
       >
-        Used By Top Performers At
+        Used By Top Tech Talent At
       </h2>
 
       <div

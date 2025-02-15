@@ -135,7 +135,7 @@ export default function Home() {
             <p style={{ color: "#666" }}>
               {userType === "business"
                 ? "Filter our thousands of candidates for skills, university, experience, and more"
-                : "Businesses will view your resumes and email  you if they think you are a good fit. We're truly always doing our best to make sure your resume gets the attention it deserves."}
+                : "Businesses looking for tech talent will view your resumes and email you if they think you are a good fit. We're truly always doing our best to make sure your resume gets the attention it deserves."}
             </p>
           </div>
 
