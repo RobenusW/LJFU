@@ -29,12 +29,14 @@ export default function App() {
 
         <Route element={<ProtectedRouteToSignin />}>
           <Route path="/initiate" element={<Initiated />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/talent/*" element={<Talent />} />
+          <Route path="/business/*" element={<Business />} />
         </Route>
 
-        <Route path="/talent/*" element={<Talent />} />
-        <Route path="/business/*" element={<Business />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/success" element={<Success />} />
+        
+        <Route path="*" element={<Navigate to="/home/talent" replace />} />
       </Routes>
     </AuthProvider>
   );

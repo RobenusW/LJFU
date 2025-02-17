@@ -3,10 +3,10 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function ProtectedRouteToSignin() {
   const user = useAuth();
-  if (!user) {
-    console.log("User is NOT logged in");
-    return <Navigate to="/signin" replace />;
-  }
+  console.log("here", user);
 
-  return <Outlet />;
+  if (user.user) {
+    return <Outlet />;
+  }
+  return <Navigate to="/signin" replace />;
 }
