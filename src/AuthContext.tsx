@@ -20,6 +20,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getSession();
   }, []);
 
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   // Handle auth state changes
   useEffect(() => {
     const {
@@ -38,7 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (session?.user?.user_metadata?.chosen_role === "business") {
           navigate("/business/resumes"); // Navigate to dashboard
         } else {
-          navigate("/initiate");
+          (async () => {
+            await sleep(1000);
+            navigate("/initiate");
+          })();
         }
       } else if (event === "SIGNED_OUT") {
         setUser(null);
