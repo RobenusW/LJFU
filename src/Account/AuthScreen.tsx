@@ -61,6 +61,7 @@ export default function AuthScreen() {
           <Auth
             supabaseClient={supabase}
             view={view}
+            redirectTo={`https://letjobsfindyou.com/initiate`}
             appearance={{
               theme: ThemeSupa,
               style: {
@@ -85,7 +86,7 @@ export default function AuthScreen() {
                 },
               },
             }}
-            providers={[]}
+            providers={["google"]}
           />
         </div>
       </div>
