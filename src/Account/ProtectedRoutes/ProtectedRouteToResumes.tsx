@@ -19,6 +19,7 @@ export default function ProtectedRouteToResumes() {
   if (user.user_metadata?.chosen_role === undefined) {
     (async () => {
       await sleep(1000);
+      console.log("delaying redirect");
       navigate("/initiate");
     })();
     return <Navigate to="/initiate" replace />;
