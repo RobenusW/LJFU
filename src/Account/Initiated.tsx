@@ -2,7 +2,7 @@ import { useState } from "react";
 import NavBar from "../NavBar";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabase";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Initiated() {
   const [role, setRole] = useState("");
