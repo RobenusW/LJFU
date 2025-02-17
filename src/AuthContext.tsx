@@ -25,10 +25,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state change:", event, session);
+
       setUser(session?.user || null);
 
       // Only navigate on actual sign in, not on session restore or tab switches
-      if (event === "SIGNED_IN" && isInitialSession) {
+      if (event === "SIGNED_IN") {
         setIsInitialSession(false);
 
         if (session?.user?.user_metadata?.chosen_role === "talent") {
