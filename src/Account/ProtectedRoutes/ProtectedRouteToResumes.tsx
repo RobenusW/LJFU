@@ -18,9 +18,9 @@ export default function ProtectedRouteToResumes() {
   // Redirect to initiate if role not chosen
   if (user.user_metadata?.chosen_role === undefined) {
     (async () => {
-      await sleep(1000);
       console.log("delaying redirect");
       navigate("/initiate");
+      await sleep(5000);
     })();
     return <Navigate to="/initiate" replace />;
   }

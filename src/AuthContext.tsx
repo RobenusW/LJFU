@@ -43,8 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           navigate("/business/resumes"); // Navigate to dashboard
         } else {
           (async () => {
-            await sleep(1000);
             navigate("/initiate");
+            console.log("delaying redirect authcontext");
+            await sleep(20000);
           })();
         }
       } else if (event === "SIGNED_OUT") {
