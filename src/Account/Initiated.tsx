@@ -2,10 +2,13 @@ import { useState } from "react";
 import NavBar from "../NavBar";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabase";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Initiated() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
+  const { user } = useAuth();
+  console.log("user", user);
 
   // Not business user until they make a business profile !!!!
   async function updateUserRole() {
