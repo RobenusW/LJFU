@@ -34,8 +34,6 @@ export default function App() {
           <Route path="/talent/*" element={<Talent />} />
           <Route path="/business/*" element={<Business />} />
         </Route>
-
-        
         <Route path="*" element={<Navigate to="/home/talent" replace />} />
       </Routes>
     </AuthProvider>
