@@ -54,7 +54,7 @@ export default function AuthScreen() {
                 },
               },
             }}
-            providers={[]}
+            providers={["google"]}
           />
         </div>
       </div>
