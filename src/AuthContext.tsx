@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user || null);
 
       // Only navigate on actual sign in, not on session restore or tab switches
-      if (event === "SIGNED_IN" && isInitialSession) {
+      if (event === "SIGNED_IN") {
         setIsInitialSession(false);
         if (session?.user?.user_metadata?.chosen_role === "talent") {
           navigate("talent/editor"); // Navigate to dashboard
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, isInitialSession]);
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
