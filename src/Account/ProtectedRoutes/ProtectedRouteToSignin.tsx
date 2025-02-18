@@ -1,9 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function ProtectedRouteToSignin() {
-  const user = useAuth();
+  const user =  useAuth();
   console.log("here", user);
 
-  return <Outlet />;
+  if (user.user) {
+    return <Outlet />;
+  }
+  return <Navigate to="/signin" replace />;
 }
