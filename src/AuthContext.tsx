@@ -32,7 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only navigate on actual sign in, not on session restore or tab switches
       if (event === "SIGNED_IN" && isInitialSession) {
         setIsInitialSession(false);
-
         if (session?.user?.user_metadata?.chosen_role === "talent") {
           navigate("talent/editor"); // Navigate to dashboard
         } else if (session?.user?.user_metadata?.chosen_role === "business") {
