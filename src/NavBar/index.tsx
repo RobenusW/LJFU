@@ -79,7 +79,7 @@ export default function NavBar() {
           )}
 
           {/* Pricing button */}
-          {pathname.includes("business") && pathname.includes("home") && (
+{/*           {pathname.includes("business") && pathname.includes("home") && (
             <button
               onClick={() => {
                 const element = document.getElementById("pricing");
@@ -104,7 +104,7 @@ export default function NavBar() {
             >
               Pricing
             </button>
-          )}
+          )} */}
           {/* button for faqs */}
           {pathname.includes("home") && (
             <button
