@@ -73,7 +73,7 @@ export default function Initiated() {
                   onChange={() => setRole("business")}
                 />
                 <label className="form-check-label" htmlFor="roleBusiness">
-                  Business (Coming Soon!)
+                  Business (Invite Only)
                 </label>
               </div>
             </div>
