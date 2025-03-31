@@ -242,7 +242,7 @@ export default function Home() {
           >
             {userType === "business"
               ? `Traditional recruiting is expensive and time-consuming. Our platform ` +
-                `helps you find the right talent at a fraction of the cost. No more ` +
+                `no-cost tool that helps you find the right talent. No more ` +
                 `need for large recruiting teams or expensive agencies.`
               : "Traditional job seeking is broken. You should not have to apply to hundreds of jobs, write meaningless cover letters, and wait for weeks to hear back. We hear you."}
           </p>
