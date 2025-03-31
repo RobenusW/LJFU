@@ -247,11 +247,11 @@ export default function Home() {
               : "Traditional job seeking is broken. You should not have to apply to hundreds of jobs, write meaningless cover letters, and wait for weeks to hear back. We hear you."}
           </p>
         </section>
-        {userType === "business" && (
+{/*         {userType === "business" && (
           <section id="pricing">
             <Pricing />
           </section>
-        )}
+        )} */}
       </div>
       {/* FAQ Section */}
       <div id="faq">
