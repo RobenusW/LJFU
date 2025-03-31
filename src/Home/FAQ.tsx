@@ -58,10 +58,15 @@ export default function Home() {
       ? [
           {
             question: "How much does LetJobsFindYou cost?",
-            answer: "It's free for talent. ",
+            answer: "It's free for talent and businesses",
           },
         ]
-      : []),
+      : [
+          {
+            question: "How much does LetJobsFindYou cost?",
+            answer: "It's free for talent and businesses",
+          },
+      ]),
 
     {
       question: "How do I get started?",
