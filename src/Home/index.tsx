@@ -2,7 +2,7 @@ import NavBar from "../NavBar/index.tsx";
 import "./index.css";
 import FAQ from "./FAQ.tsx";
 import Footer from "./Footer.tsx";
-import Pricing from "./Pricing.tsx";
+// import Pricing from "./Pricing.tsx";
 import LogoCarousel from "./LogoCarousel.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
